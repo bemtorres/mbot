@@ -1,0 +1,17 @@
+{
+  "tool": "image_gen built-in",
+  "images": [
+    {
+      "slug": "felix",
+      "prompt": "Square avatar portrait of Félix, a fictional extremely happy young man, huge joyful smile, laughing eyes, yellow sweater. Polished painterly editorial illustration matching a chatbot portrait collection, centered head and shoulders, muted deep blue background, soft cinematic lighting, expressive face and clear silhouette at small sizes. No words, no border. Friendly non scary style."
+    },
+    {
+      "slug": "grunon",
+      "prompt": "Square avatar portrait of Don Gruñón, a fictional very grumpy middle-aged man, furrowed brows, tightly crossed arms, irritated frown, burgundy sweater, comically uncooperative expression. Polished painterly editorial illustration matching a chatbot portrait collection, centered head and shoulders, muted deep blue background, soft cinematic lighting, expressive face and clear silhouette at small sizes. No words, no border. Friendly non scary style."
+    },
+    {
+      "slug": "pirueta",
+      "prompt": "Square avatar portrait of Pirueta, a friendly comedic circus clown with a red round nose, colorful curly hair, small bowler hat, colorful bow tie and playful smile. Polished painterly editorial illustration matching a chatbot portrait collection, centered head and shoulders, muted deep blue background, soft cinematic lighting, expressive face and clear silhouette at small sizes. No words, no border. Friendly non scary style."
+    }
+  ]
+}

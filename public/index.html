@@ -441,10 +441,15 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
           <div class="sm:col-span-1">
-            <label class="block font-medium text-zinc-300 mb-1">Avatar</label>
+            <label class="block font-medium text-zinc-300 mb-1" for="bot-form-avatar">Avatar</label>
+            <div id="bot-form-avatar-preview" class="avatar-form-preview" aria-label="Vista previa del avatar"></div>
+            <label class="avatar-upload-label" for="bot-form-image">Elegir imagen</label>
+            <input id="bot-form-image" class="avatar-file-input" type="file" accept="image/png,image/jpeg,image/webp" onchange="handleAvatarImage(this)">
+            <p class="avatar-image-hint">JPG, PNG o WebP · máximo 10 MB. Se recorta al centro y guarda en WebP.</p>
+            <p id="bot-form-image-error" role="alert"></p>
             <div class="flex items-center gap-1.5">
               <input 
-                id="bot-form-avatar" 
+                id="bot-form-avatar" oninput="resetSelectedAvatar()" 
                 type="text" 
                 maxlength="2048"
                 placeholder="Emoji o /images/bots/alex.webp" 

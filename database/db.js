@@ -383,6 +383,8 @@ Los planetas giran alrededor del Sol siguiendo las geodésicas en el espacio cur
     }
   ];
 
+  botsToSeed.push(...JSON.parse(fs.readFileSync(path.join(__dirname, 'personalityProfiles.json'), 'utf8')));
+
   const insertBot = db.prepare(`
     INSERT INTO bots (id, name, avatar, role, type, provider, model, system_prompt, temperature)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
@@ -415,7 +417,7 @@ Los planetas giran alrededor del Sol siguiendo las geodésicas en el espacio cur
       insertBot.run(
         bot.id,
         bot.name,
-        `/images/bots/${botAvatars[bot.id].slug}.webp`,
+        botAvatars[bot.id] ? `/images/bots/${botAvatars[bot.id].slug}.webp` : bot.avatar,
         bot.role,
         bot.type,
         bot.provider,

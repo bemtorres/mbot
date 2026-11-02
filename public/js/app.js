@@ -654,6 +654,7 @@ function openCreateBotModal() {
   document.getElementById('modal-bot-title').innerText = 'Crear Nuevo Bot con Identidad';
   document.getElementById('bot-form-id').value = '';
   document.getElementById('bot-form-avatar').value = '🤖';
+  resetSelectedAvatar();
   document.getElementById('bot-form-name').value = '';
   document.getElementById('bot-form-role').value = '';
   document.querySelector('input[name="bot-form-type"][value="simple"]').checked = true;
@@ -678,6 +679,7 @@ function openEditBotModal() {
   document.getElementById('modal-bot-title').innerText = `Editar Identidad: ${bot.name}`;
   document.getElementById('bot-form-id').value = bot.id;
   document.getElementById('bot-form-avatar').value = bot.avatar || '🤖';
+  resetSelectedAvatar();
   document.getElementById('bot-form-name').value = bot.name;
   document.getElementById('bot-form-role').value = bot.role || '';
   
@@ -703,6 +705,7 @@ function closeBotProfileModal() {
 
 function setFormAvatar(emoji) {
   document.getElementById('bot-form-avatar').value = emoji;
+  resetSelectedAvatar();
 }
 
 function handleProviderChange(selectedModel = null) {
@@ -731,7 +734,8 @@ async function handleSaveBotProfile(event) {
   event.preventDefault();
 
   const id = document.getElementById('bot-form-id').value;
-  const avatar = document.getElementById('bot-form-avatar').value.trim() || '🤖';
+  let avatar = document.getElementById('bot-form-avatar').value.trim() || '🤖';
+  if (avatarImageBusy) return;
   const name = document.getElementById('bot-form-name').value.trim();
   const role = document.getElementById('bot-form-role').value.trim();
   const type = document.querySelector('input[name="bot-form-type"]:checked').value;
@@ -740,6 +744,22 @@ async function handleSaveBotProfile(event) {
   const temperature = parseFloat(document.getElementById('bot-form-temperature').value);
   const system_prompt = document.getElementById('bot-form-prompt').value.trim();
 
+  if (pendingAvatarImage) {
+    try {
+      const response = await fetch('/api/bots/avatar', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image: pendingAvatarImage })
+      });
+      const result = await response.json();
+      if (!response.ok || !result.success) throw new Error(result.error || 'No se pudo subir la imagen.');
+      avatar = result.data.avatar;
+      document.getElementById('bot-form-avatar').value = avatar;
+      pendingAvatarImage = null;
+    } catch (error) {
+      document.getElementById('bot-form-image-error').textContent = error.message;
+      return;
+    }
+  }
   const payload = { avatar, name, role, type, provider, model, temperature, system_prompt };
 
   try {
@@ -1250,3 +1270,48 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 });
+
+let pendingAvatarImage = null;
+let avatarImageBusy = false;
+let avatarImageVersion = 0;
+function resetSelectedAvatar() {
+  avatarImageVersion++;
+  pendingAvatarImage = null;
+  avatarImageBusy = false;
+  document.getElementById('bot-form-image').value = '';
+  document.getElementById('bot-form-image-error').textContent = '';
+  document.getElementById('bot-form-avatar-preview').innerHTML = renderBotAvatar({avatar: document.getElementById('bot-form-avatar').value});
+}
+async function handleAvatarImage(input) {
+  const file = input.files?.[0];
+  if (!file) return;
+  const version = ++avatarImageVersion;
+  const errorLabel = document.getElementById('bot-form-image-error');
+  errorLabel.textContent = '';
+  avatarImageBusy = true;
+  const url = URL.createObjectURL(file);
+  try {
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size > 10 * 1024 * 1024) {
+      throw new Error('Elige una imagen JPG, PNG o WebP de hasta 10 MB.');
+    }
+    const image = new Image();
+    image.src = url;
+    await image.decode();
+    if (version !== avatarImageVersion) return;
+    const canvas = document.createElement('canvas');
+    canvas.width = canvas.height = 512;
+    const size = Math.min(image.naturalWidth, image.naturalHeight);
+    canvas.getContext('2d').drawImage(image, (image.naturalWidth - size) / 2, (image.naturalHeight - size) / 2, size, size, 0, 0, 512, 512);
+    const data = canvas.toDataURL('image/webp', 0.88);
+    if (!data.startsWith('data:image/webp;')) throw new Error('Tu navegador no permite convertir a WebP.');
+    pendingAvatarImage = data;
+    const preview = document.createElement('img');
+    preview.src = data; preview.alt = 'Nueva imagen del bot'; preview.className = 'bot-avatar-image';
+    document.getElementById('bot-form-avatar-preview').replaceChildren(preview);
+  } catch (error) {
+    if (version === avatarImageVersion) errorLabel.textContent = error.message || 'No se pudo leer la imagen.';
+  } finally {
+    URL.revokeObjectURL(url);
+    if (version === avatarImageVersion) avatarImageBusy = false;
+  }
+}

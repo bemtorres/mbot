@@ -1,7 +1,33 @@
+import { randomUUID } from 'node:crypto';
+import fs from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { Router } from 'express';
 import { BotService } from '../services/botService.js';
 
 const router = Router();
+
+// Los navegadores convierten el archivo elegido a un retrato WebP de 512 px.
+router.post('/avatar', (req, res) => {
+  const data = req.body?.image;
+  if (typeof data !== 'string' || !/^data:image\/webp;base64,[A-Za-z0-9+/]+={0,2}$/.test(data)) {
+    return res.status(400).json({ success: false, error: 'Selecciona una imagen WebP válida.' });
+  }
+  const image = Buffer.from(data.split(',')[1], 'base64');
+  if (image.length < 20 || image.length > 2 * 1024 * 1024 ||
+      image.toString('ascii', 0, 4) !== 'RIFF' || image.toString('ascii', 8, 12) !== 'WEBP' ||
+      image.readUInt32LE(4) + 8 !== image.length) {
+    return res.status(400).json({ success: false, error: 'Imagen WebP inválida o demasiado grande (máximo 2 MB).' });
+  }
+  try {
+    const filename = `avatar-${randomUUID()}.webp`;
+    const directory = fileURLToPath(new URL('../../public/images/bots/', import.meta.url));
+    fs.mkdirSync(directory, { recursive: true });
+    fs.writeFileSync(directory + filename, image, { flag: 'wx' });
+    res.status(201).json({ success: true, data: { avatar: `/images/bots/${filename}` } });
+  } catch {
+    res.status(500).json({ success: false, error: 'No se pudo guardar la imagen.' });
+  }
+});
 
 // Listar todos los bots
 router.get('/', (req, res) => {

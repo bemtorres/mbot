@@ -924,3 +924,9 @@ html:not(.dark) #active-bot-doc-count { color: #581c87; background: #e9d5ff; }
   .chat-header-actions button { flex-shrink: 0; min-width: 44px; }
   #btn-representation, #btn-knowledge-base { flex: 1 1 100px; }
 }
+
+.avatar-form-preview { width: 80px; height: 80px; border-radius: 16px; overflow: hidden; display: flex; align-items: center; justify-content: center; font-size: 36px; border: 1px solid var(--border-app); background: var(--bg-muted); margin-bottom: 10px; }
+.avatar-upload-label { display: inline-flex; align-items: center; min-height: 44px; padding: 8px 12px; border: 1px solid var(--border-app); background: var(--bg-muted); border-radius: 8px; cursor: pointer; }
+.avatar-file-input { display: block; width: 100%; font-size: 11px; margin: 8px 0; }
+.avatar-image-hint { font-size: 11px; color: var(--text-muted); line-height: 1.5; margin: 8px 0; }
+#bot-form-image-error { color: #dc2626; font-size: 12px; }
