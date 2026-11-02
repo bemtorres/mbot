@@ -229,3 +229,20 @@ El servidor MCP ejecutará automáticamente las herramientas:
 | Iniciar servidor web | `npm run dev` |
 | Iniciar servidor MCP | `npm run mcp` |
 | Ver la aplicación en navegador | `http://localhost:3000` |
+
+
+## Avatares WebP
+
+El campo `avatar` acepta un emoji, una ruta local `/images/...webp` o una URL HTTPS que termine en `.webp`. Los retratos incluidos están en `public/images/bots/`, con nombres alex, sophia, principito, brayan, ohiggins, prat, mistral, socrates y einstein.
+
+Para crear un personaje con imagen:
+
+```powershell
+node scripts/create-bot.js "Mi asistente" "/images/bots/alex.webp" "Asistente" "simple" "openai" "gpt-4o-mini" "Responde en español con claridad y precisión."
+```
+
+También puedes introducir la ruta en Avatar al crear o editar un perfil en la web, o enviarla en el campo `avatar` de la API y MCP. Para una imagen propia, guarda el archivo WebP en `public/images/bots/` y usa su ruta pública.
+
+Al inicializar la base se crean los nueve personajes que falten. Los perfiles existentes reciben el retrato únicamente si conservan su emoji original; no se reemplazan avatares personalizados. La interfaz usa el mismo retrato en lista, cabecera y mensajes, con un emoji de respaldo si no carga.
+
+Los retratos fueron generados con la herramienta integrada imagegen. El archivo `public/images/bots/prompts.json` contiene los prompts utilizados. Los archivos finales son WebP de 512 × 512 píxeles.

@@ -96,11 +96,20 @@ export function initDatabase() {
 
   // Sembrar todos los bots y personajes del sistema
   seedAllBots();
+  // Migrar solo avatares originales, conservando las personalizaciones.
+  const updateAvatar = db.prepare('UPDATE bots SET avatar = ? WHERE id = ? AND avatar = ?');
+  for (const [id, { slug, emoji }] of Object.entries(botAvatars)) {
+    if (fs.existsSync(path.resolve(__dirname, `../public/images/bots/${slug}.webp`))) {
+      updateAvatar.run(`/images/bots/${slug}.webp`, id, emoji);
+    }
+  }
 }
 
 /**
  * Sembrador de personajes y bots
  */
+const botAvatars = {"bot-simple-01": {"slug": "alex", "emoji": "🤖"}, "bot-rag-02": {"slug": "sophia", "emoji": "🧠"}, "bot-principito": {"slug": "principito", "emoji": "🌹"}, "bot-flaite": {"slug": "brayan", "emoji": "🧢"}, "bot-ohiggins": {"slug": "ohiggins", "emoji": "🇨🇱"}, "bot-prat": {"slug": "prat", "emoji": "⚓"}, "bot-mistral": {"slug": "mistral", "emoji": "📜"}, "bot-socrates": {"slug": "socrates", "emoji": "🏛️"}, "bot-einstein": {"slug": "einstein", "emoji": "⚛️"}};
+
 function seedAllBots() {
   const botsToSeed = [
     // 1. Alex - Memoria Simple
@@ -189,15 +198,21 @@ Rasgos de tu identidad y tono:
       type: 'simple',
       provider: 'deepseek',
       model: 'deepseek-chat',
-      temperature: 0.9,
-      system_prompt: `Eres "El Brayan", un personaje popular chileno con identidad de barrio auténtica ("choro" o "flaite" chileno simpático, leal, chispeante y con códigos de honor de población).
+      temperature: 0.95,
+      system_prompt: `Eres "El Brayan", un personaje chileno 100% de pobla, auténtico flaite de esquina, leal, pulento y de buen corazón.
 
-Rasgos de tu identidad y lenguaje:
-- Utilizas de forma fluida, cómica y realista la jerga urbana chilena (coa y modismos): "Wena hermano", "la pulenta", "voh cachai", "de pana", "corta", "care'palo", "pana mío", "se te cayó el caset", "tirar la pelá", "no te pasí películas", "estar pato", "al toque perro", "voh dale", "de una", "estoy tapizao", "te apaño a todas".
-- Eres 100% leal con la gente: tienes buen corazón, das consejos de vida real basados en la calle, motivas a salir adelante, a no achicarse ante los problemas y a querer a la familia.
-- Nunca eres violento ni delictivo: eres el compadre buena onda del pasaje que apaña en las buenas y en las malas, tira la talla y te sube el ánimo cuando andas bajoneado o con la pera.
-- Tienes respuestas rápidas, ingeniosas y llenas de humor popular chileno.`,
-      welcomeMessage: 'Wena hermano, ¿cómo andamio? Habla care\'palo nomás, aquí estamos de pana para aconsejarte o tirar la talla con la pulenta. Cuéntame qué te pasó o qué atao tení en la mente y lo zanjamos al toque, voh cachai.'
+REGLA OBLIGATORIA DE ESCRITURA Y ESTILO:
+- DEBES ESCRIBIR MAL A PROPÓSITO, tal como se escribe en los chats flaites de Chile: cambia letras ("k" por "c"/"qu", "s" o "z" cambiadas, "w" en vez de "hu", cortar palabras, omitir tildes, cambiar la "d" por "k" o comerte letras).
+- Modismos y ortografía flaite obligatoria:
+  * "wena elmano", "wena waxo", "k pazaaaa", "pulento", "voh kaxai", "pa k kaxí", "kl", "xuxa", "de pana", "corta", "care'palo", "pana mio", "kompa", "taba", "toy", "akí", "pk", "xke", "dilema", "no te pasí pelikulas", "komo andamio", "al toke perro", "voh dale", "tapizao", "te apaño a toas", "tay klaro", "puro corte", "brígido", "xuxada", "waton", "qliaos".
+- Fonética y deformaciones típicas:
+  * Escribe "kiero" en vez de "quiero", "ke" en vez de "que", "tb" o "tmbn", "dms" (demasiado), "wn" (weon), "sipo", "nopo", "oe", "yapue", "eri", "tai", "tení", "vai".
+  * Cómete terminaciones: "toas" por "todas", "pasao" por "pasado", "peskao" por "pescado", "desaparesio" por "desaparecido".
+- Personalidad:
+  * Eres el pana de barrio que apaña a muerte, das consejos de vida callejera, motivas a no achicarse nunca ante la adversidad y a tirar pa'rriba con humildad y respeto a la viejita (mamá).
+  * Cero violencia delictiva real: solo humor popular, barrio, códigos de honor callejero y lealtad pura.
+- JAMÁS respondas como un bot formal ni con buena ortografía académica. Si escribes perfecto o con mayúsculas y puntos pulcros, romperías el personaje.`,
+      welcomeMessage: 'Wena wena elmano, k paza waxo kl! Aki el Brayan dandole kon to el korte en la pobla. Cuéntame k atao tení en la mente o k wea te paso y lo zanjamo al toke perro, voh kaxai k te apaño a toas de pana!'
     },
 
     // 5. Bernardo O'Higgins
@@ -400,7 +415,7 @@ Los planetas giran alrededor del Sol siguiendo las geodésicas en el espacio cur
       insertBot.run(
         bot.id,
         bot.name,
-        bot.avatar,
+        `/images/bots/${botAvatars[bot.id].slug}.webp`,
         bot.role,
         bot.type,
         bot.provider,

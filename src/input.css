@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* El selector de la aplicación controla el tema, independientemente de Windows. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
   --color-brand-50: #f5f3ff;
   --color-brand-100: #ede9fe;

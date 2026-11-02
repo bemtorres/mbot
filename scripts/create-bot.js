@@ -65,7 +65,7 @@ async function run() {
     process.exit(1);
   }
 
-  const avatar = (await question('2. Emoji o Avatar (ej: 🛡️, 🍎, 🚀) [default: 🤖]: ')).trim() || '🤖';
+  const avatar = (await question('2. Emoji o ruta WebP (ej: /images/bots/alex.webp) [default: 🤖]: ')).trim() || '🤖';
   const role = (await question('3. Rol o especialidad (ej: Caballero Andante, Visionario Tech): ')).trim() || 'Asistente';
 
   console.log('\nTipos de memoria:');

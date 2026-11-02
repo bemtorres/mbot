@@ -124,49 +124,48 @@ function renderBotsList() {
   const countBadge = document.getElementById('bots-count-badge');
   countBadge.innerText = `${state.bots.length} activo${state.bots.length === 1 ? '' : 's'}`;
 
-  container.innerHTML = state.bots.map(bot => {
+  // Separar los bots por tipo de memoria
+  const ragBots = state.bots.filter(b => b.type === 'rag');
+  const simpleBots = state.bots.filter(b => b.type !== 'rag');
+
+  const renderCard = (bot) => {
     const isActive = state.activeBot && state.activeBot.id === bot.id;
     const isRag = bot.type === 'rag';
-
-    const memoryBadgeClass = isRag 
-      ? 'border border-purple-800/40 bg-purple-950/30 text-purple-300' 
-      : 'border border-zinc-700 bg-zinc-800/60 text-zinc-300';
-
     const memoryLabel = isRag ? '🧠 RAG Embeddings' : '📝 Memoria Simple';
     const providerLabel = bot.provider === 'deepseek' ? 'DeepSeek' : 'OpenAI';
 
     return `
       <div 
-        onclick="selectBot('${bot.id}')"
-        class="group p-2.5 rounded-lg cursor-pointer transition border ${
+        role="button" tabindex="0" onkeydown="if(event.key === 'Enter' || event.key === ' '){event.preventDefault();selectBot('${bot.id}')}" onclick="selectBot('${bot.id}')"
+        class="bot-item-card group p-2.5 rounded-lg cursor-pointer transition border ${
           isActive 
-            ? 'bg-zinc-900 border-zinc-800 text-zinc-100 shadow-xs' 
-            : 'border-transparent hover:border-zinc-800/80 hover:bg-zinc-900/50 text-zinc-400 hover:text-zinc-200'
+            ? 'bot-item-active shadow-xs' 
+            : 'border-transparent hover:border-zinc-300 dark:hover:border-zinc-800/80 hover:bg-zinc-100 dark:hover:bg-zinc-900/50 text-zinc-600 dark:text-zinc-400'
         }"
       >
-        <div class="flex items-start gap-2.5">
-          <div class="w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center text-sm shrink-0 mt-0.5">
-            ${bot.avatar || '🤖'}
+        <div class="bot-card-layout">
+          <div class="bot-avatar-box bot-list-avatar">
+            ${renderBotAvatar(bot)}
           </div>
 
           <div class="flex-1 min-w-0">
-            <div class="flex items-center justify-between gap-1">
-              <h4 class="font-medium text-xs truncate ${isActive ? 'text-zinc-100 font-semibold' : 'text-zinc-300'}">
+            <div class="bot-card-heading">
+              <h4 class="bot-card-name">
                 ${escapeHtml(bot.name)}
               </h4>
-              <span class="text-[9px] px-1 py-0.2 rounded font-mono uppercase bg-zinc-800/80 text-zinc-400 border border-zinc-700/60 shrink-0">
+              <span class="bot-provider-badge text-[9px] px-1 py-0.2 rounded font-mono uppercase shrink-0">
                 ${providerLabel}
               </span>
             </div>
 
-            <p class="text-[11px] text-zinc-500 truncate mt-0.5">${escapeHtml(bot.role || 'Asistente')}</p>
+            <p class="bot-card-role">${escapeHtml(bot.role || 'Asistente')}</p>
 
             <div class="flex items-center gap-1.5 mt-1.5 flex-wrap">
-              <span class="text-[9px] font-mono px-1.5 py-0.2 rounded ${memoryBadgeClass}">
+              <span class="text-[9px] font-mono px-1.5 py-0.2 rounded ${isRag ? 'badge-rag' : 'badge-simple'}">
                 ${memoryLabel}
               </span>
               ${isRag ? `
-                <span class="text-[9px] font-mono px-1 py-0.2 rounded bg-zinc-900 text-zinc-400 border border-zinc-800">
+                <span class="badge-doc-count text-[9px] font-mono px-1 py-0.2 rounded">
                   ${bot.document_count || 0} doc
                 </span>
               ` : ''}
@@ -175,8 +174,54 @@ function renderBotsList() {
         </div>
       </div>
     `;
-  }).join('');
+  };
 
+  let html = '';
+
+  // SECCIÓN 1: MEMORIA SIMPLE
+  if (simpleBots.length > 0) {
+    html += `
+      <div class="pt-1 pb-1 px-1">
+        <div class="category-header-simple flex items-center justify-between text-[11px] font-semibold uppercase tracking-wider mb-2 px-2.5 py-1.5 rounded-lg border font-mono">
+          <div class="flex items-center gap-1.5">
+            <span>📝</span>
+            <span>Memoria Simple (SQLite)</span>
+          </div>
+          <span class="category-count-badge text-[10px] px-1.5 py-0.2 rounded-full font-mono font-bold">${simpleBots.length}</span>
+        </div>
+        <div class="space-y-1">
+          ${simpleBots.map(renderCard).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  // SEPARADOR DIVISOR
+  if (ragBots.length > 0 && simpleBots.length > 0) {
+    html += `
+      <div class="my-2 border-t border-zinc-200 dark:border-zinc-800/80"></div>
+    `;
+  }
+
+  // SECCIÓN 2: RAG EMBEDDINGS
+  if (ragBots.length > 0) {
+    html += `
+      <div class="pt-1 pb-1 px-1">
+        <div class="category-header-rag flex items-center justify-between text-[11px] font-semibold uppercase tracking-wider mb-2 px-2.5 py-1.5 rounded-lg border font-mono">
+          <div class="flex items-center gap-1.5">
+            <span>🧠</span>
+            <span>Memoria RAG (Embeddings)</span>
+          </div>
+          <span class="category-count-badge text-[10px] px-1.5 py-0.2 rounded-full font-mono font-bold">${ragBots.length}</span>
+        </div>
+        <div class="space-y-1">
+          ${ragBots.map(renderCard).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  container.innerHTML = html;
   if (window.lucide) lucide.createIcons();
 }
 
@@ -184,11 +229,12 @@ async function selectBot(botId) {
   const bot = state.bots.find(b => b.id === botId);
   if (!bot) return;
 
+  closeMobileSidebar(false);
   state.activeBot = bot;
   renderBotsList();
 
   // Actualizar Header
-  document.getElementById('active-bot-avatar').innerText = bot.avatar || '🤖';
+  document.getElementById('active-bot-avatar').innerHTML = renderBotAvatar(bot);
   document.getElementById('active-bot-name').innerText = bot.name;
   document.getElementById('active-bot-role').innerText = bot.role || 'Asistente';
 
@@ -196,10 +242,10 @@ async function selectBot(botId) {
   const isRag = bot.type === 'rag';
   
   if (isRag) {
-    typeBadge.className = 'text-[10px] px-2 py-0.5 rounded-full font-mono border border-purple-900/60 bg-purple-950/40 text-purple-300';
+    typeBadge.className = 'badge-rag text-[10px] px-2.5 py-0.5 rounded-full font-mono border font-semibold shrink-0';
     typeBadge.innerText = 'Memoria RAG (Embeddings)';
   } else {
-    typeBadge.className = 'text-[10px] px-2 py-0.5 rounded-full font-mono border border-emerald-900/60 bg-emerald-950/40 text-emerald-400';
+    typeBadge.className = 'badge-simple text-[10px] px-2.5 py-0.5 rounded-full font-mono border font-semibold shrink-0';
     typeBadge.innerText = 'Memoria Simple (SQLite)';
   }
 
@@ -270,7 +316,7 @@ function renderMessages() {
     container.innerHTML = `
       <div class="h-full flex flex-col items-center justify-center text-center p-6 text-zinc-400">
         <div class="w-14 h-14 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-2xl mb-3 shadow-sm">
-          ${state.activeBot ? state.activeBot.avatar : '🤖'}
+          ${renderBotAvatar(state.activeBot)}
         </div>
         <h4 class="text-sm font-semibold text-zinc-100 mb-1">Conversación con ${escapeHtml(state.activeBot?.name || 'el bot')}</h4>
         <p class="text-xs text-zinc-400 max-w-md leading-relaxed">
@@ -318,7 +364,7 @@ function renderMessages() {
     if (isUser) {
       return `
         <div class="max-w-4xl mx-auto flex justify-end">
-          <div class="max-w-[85%] sm:max-w-[70%] rounded-2xl rounded-tr-xs bg-zinc-100 text-zinc-900 px-4 py-2.5 shadow-xs text-sm leading-relaxed">
+          <div class="chat-bubble-user max-w-[85%] sm:max-w-[70%] rounded-2xl rounded-tr-xs px-4 py-2.5 shadow-xs text-sm leading-relaxed">
             <div class="text-[11px] font-semibold text-zinc-600 mb-0.5 text-right">
               Tú
             </div>
@@ -338,9 +384,9 @@ function renderMessages() {
       return `
         <div class="max-w-4xl mx-auto flex items-start gap-3">
           <div class="w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center text-sm shrink-0 shadow-xs mt-0.5">
-            ${state.activeBot ? state.activeBot.avatar : '🤖'}
+            ${renderBotAvatar(state.activeBot)}
           </div>
-          <div class="max-w-[95%] sm:max-w-[85%] rounded-2xl rounded-tl-xs bg-[#0c0c0e] border border-zinc-800 text-zinc-100 px-4 py-3 shadow-xs">
+          <div class="chat-bubble-bot max-w-[95%] sm:max-w-[85%] rounded-2xl rounded-tl-xs px-4 py-3 shadow-xs">
             <div class="flex items-center justify-between gap-2 mb-1.5">
               <span class="text-xs font-semibold text-zinc-200 tracking-tight">${escapeHtml(state.activeBot?.name || 'Bot')}</span>
               <span class="text-[10px] text-zinc-500 font-mono">${formatTime(msg.created_at)}</span>
@@ -469,7 +515,7 @@ function appendTypingIndicator() {
 
   typingDiv.innerHTML = `
     <div class="w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center text-sm shrink-0 shadow-xs mt-0.5">
-      ${state.activeBot ? state.activeBot.avatar : '🤖'}
+      ${renderBotAvatar(state.activeBot)}
     </div>
     <div class="w-full max-w-md rounded-2xl rounded-tl-xs bg-[#0c0c0e] border border-zinc-800 p-3.5 shadow-md space-y-2.5">
       
@@ -547,19 +593,59 @@ function sendQuickPrompt(promptText) {
   handleSendMessage();
 }
 
-async function clearChatHistory() {
-  if (!state.activeConversation) return;
-  if (!confirm(`¿Deseas limpiar toda la memoria conversacional de este chat con ${state.activeBot?.name}?`)) return;
+let pendingClearConversation = null;
+let isClearingHistory = false;
 
+function clearChatHistory() {
+  if (!state.activeConversation || state.isSending || isClearingHistory) return;
+  pendingClearConversation = state.activeConversation.id;
+  document.getElementById('clear-chat-bot-name').textContent = state.activeBot?.name || 'este bot';
+  document.getElementById('clear-chat-error').textContent = '';
+  document.getElementById('modal-clear-chat').showModal();
+}
+
+function closeClearChatModal() {
+  if (isClearingHistory) return;
+  document.getElementById('modal-clear-chat').close();
+  pendingClearConversation = null;
+}
+
+async function confirmClearChatHistory() {
+  if (!pendingClearConversation || isClearingHistory) return;
+  const conversationId = pendingClearConversation;
+  const dialog = document.getElementById('modal-clear-chat');
+  const confirmButton = document.getElementById('confirm-clear-chat');
+  const cancelButton = document.getElementById('cancel-clear-chat');
+  isClearingHistory = true;
+  confirmButton.disabled = cancelButton.disabled = true;
+  confirmButton.textContent = 'Limpiando…';
+  document.getElementById('clear-chat-error').textContent = '';
   try {
-    const res = await API.clearConversation(state.activeConversation.id);
-    if (res.success) {
-      await loadMessages(state.activeConversation.id);
+    const res = await API.clearConversation(conversationId);
+    if (!res.success) throw new Error(res.error || 'No se pudo limpiar la conversación.');
+    if (state.activeConversation?.id === conversationId) {
+      await loadMessages(conversationId);
+      state.lastTrace = null;
+      state.tracesByMessageId = {};
     }
+    dialog.close();
+    pendingClearConversation = null;
   } catch (err) {
-    alert('Error al limpiar conversación: ' + err.message);
+    document.getElementById('clear-chat-error').textContent = 'Error al limpiar: ' + err.message;
+  } finally {
+    isClearingHistory = false;
+    confirmButton.disabled = cancelButton.disabled = false;
+    confirmButton.textContent = 'Limpiar conversación';
   }
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+  const dialog = document.getElementById('modal-clear-chat');
+  dialog.addEventListener('cancel', event => {
+    event.preventDefault();
+    closeClearChatModal();
+  });
+});
 
 /* ========================================================
    MODAL: EDITAR / CREAR PERFIL DEL BOT (IDENTIDAD)
@@ -980,33 +1066,33 @@ function openRepresentationModal(messageId = null) {
     if (step.details) {
       detailsHtml = `
         <details class="mt-2 text-xs group">
-          <summary class="cursor-pointer text-slate-400 hover:text-slate-200 select-none text-[11px] inline-flex items-center gap-1 font-mono">
+          <summary class="cursor-pointer text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200 select-none text-[11px] inline-flex items-center gap-1 font-mono">
             <span>🔍 Ver detalles técnicos y métricas</span>
           </summary>
-          <pre class="mt-1.5 p-2.5 rounded-lg bg-slate-950/90 border border-slate-800 text-slate-300 font-mono text-[11px] overflow-x-auto">${escapeHtml(JSON.stringify(step.details, null, 2))}</pre>
+          <pre class="modal-step-pre mt-1.5 p-2.5 rounded-lg font-mono text-[11px] overflow-x-auto">${escapeHtml(JSON.stringify(step.details, null, 2))}</pre>
         </details>
       `;
     }
 
     return `
-      <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 transition space-y-2">
+      <div class="modal-step-card p-4 rounded-xl transition space-y-2">
         <div class="flex items-center justify-between flex-wrap gap-2">
           <div class="flex items-center gap-2.5">
-            <span class="w-6 h-6 rounded-full bg-indigo-500/20 text-indigo-300 flex items-center justify-center font-bold text-xs">
+            <span class="w-6 h-6 rounded-full bg-indigo-500/10 text-indigo-600 dark:text-indigo-300 dark:bg-indigo-500/20 flex items-center justify-center font-bold text-xs">
               ${step.stepNumber}
             </span>
-            <h5 class="font-bold text-sm text-slate-100">${escapeHtml(step.title)}</h5>
+            <h5 class="font-bold text-sm text-zinc-900 dark:text-zinc-100">${escapeHtml(step.title)}</h5>
           </div>
           <div class="flex items-center gap-2">
-            <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono">
+            <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 font-mono">
               Completado
             </span>
-            <span class="text-[11px] font-mono text-amber-400/90 bg-amber-950/30 px-2 py-0.5 rounded border border-amber-500/20">
+            <span class="text-[11px] font-mono text-amber-700 dark:text-amber-400/90 bg-amber-500/10 dark:bg-amber-950/30 px-2 py-0.5 rounded border border-amber-500/20">
               ${step.durationMs} ms
             </span>
           </div>
         </div>
-        <p class="text-xs text-slate-300 leading-relaxed pl-8">
+        <p class="text-xs text-zinc-600 dark:text-zinc-300 leading-relaxed pl-8">
           ${escapeHtml(step.summary)}
         </p>
         <div class="pl-8">
@@ -1109,3 +1195,58 @@ function formatDate(isoString) {
   const d = new Date(isoString);
   return d.toLocaleDateString([], { day: '2-digit', month: 'short', year: 'numeric' });
 }
+
+// Solo rutas locales o HTTPS: nunca insertar el avatar recibido como HTML.
+function renderBotAvatar(bot) {
+  const avatar = String(bot?.avatar || '🤖');
+  const isImage = /^(?:\/images\/[a-zA-Z0-9_./-]+\.webp|https:\/\/[^\s]+\.webp(?:[?#][^\s]*)?)$/i.test(avatar);
+  if (!isImage) return escapeHtml(avatar);
+  const img = document.createElement('img');
+  img.src = avatar;
+  img.alt = bot?.name || 'Avatar del bot';
+  img.className = 'bot-avatar-image';
+  img.setAttribute('onerror', "this.replaceWith(document.createTextNode('🤖'))");
+  return img.outerHTML;
+}
+
+// Navegación móvil: panel de chats con cierre por Escape y foco contenido.
+function openMobileSidebar() {
+  if (!window.matchMedia('(max-width: 767px)').matches) return;
+  const sidebar = document.getElementById('chat-sidebar');
+  sidebar.inert = false;
+  sidebar.setAttribute('role', 'dialog');
+  sidebar.setAttribute('aria-modal', 'true');
+  document.body.classList.add('sidebar-open');
+  document.querySelector('main').inert = true;
+  document.getElementById('sidebar-backdrop').hidden = false;
+  document.getElementById('open-sidebar').setAttribute('aria-expanded', 'true');
+  requestAnimationFrame(() => document.getElementById('close-sidebar').focus());
+}
+function closeMobileSidebar(restoreFocus = true) {
+  const sidebar = document.getElementById('chat-sidebar');
+  const wasOpen = document.body.classList.contains('sidebar-open');
+  document.body.classList.remove('sidebar-open');
+  document.querySelector('main').inert = false;
+  sidebar.removeAttribute('role');
+  sidebar.removeAttribute('aria-modal');
+  sidebar.inert = window.matchMedia('(max-width: 767px)').matches;
+  document.getElementById('sidebar-backdrop').hidden = true;
+  document.getElementById('open-sidebar').setAttribute('aria-expanded', 'false');
+  if (wasOpen && restoreFocus) document.getElementById('open-sidebar').focus();
+  else if (wasOpen) document.getElementById('open-sidebar').focus({ preventScroll: true });
+}
+document.addEventListener('DOMContentLoaded', () => {
+  const mobile = window.matchMedia('(max-width: 767px)');
+  closeMobileSidebar(false);
+  mobile.addEventListener('change', () => closeMobileSidebar(false));
+  document.addEventListener('keydown', event => {
+    if (!document.body.classList.contains('sidebar-open')) return;
+    if (event.key === 'Escape') { event.preventDefault(); closeMobileSidebar(); }
+    if (event.key === 'Tab') {
+      const elements = [...document.getElementById('chat-sidebar').querySelectorAll('button, input, select, textarea, a[href], [tabindex="0"]')].filter(el => el.getClientRects().length);
+      const first = elements[0], last = elements[elements.length - 1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
+    }
+  });
+});

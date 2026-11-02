@@ -2,35 +2,23 @@
 @import url('https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap');
 
 :root {
-  /* LIGHT MODE POR DEFECTO */
-  --bg-app: #ffffff;
-  --bg-sidebar: #f8fafc;
+  --bg-app: #f8fafc;
+  --bg-sidebar: #f1f5f9;
   --bg-card: #ffffff;
-  --bg-muted: #f1f5f9;
+  --bg-muted: #e2e8f0;
   --border-app: #e2e8f0;
-  --border-muted: #cbd5e1;
   --text-main: #0f172a;
-  --text-muted: #64748b;
-  --bubble-bot: #f1f5f9;
-  --bubble-user: #0f172a;
-  --bubble-user-text: #ffffff;
-  --code-bg: #f8fafc;
+  --text-muted: #475569;
 }
 
 html.dark {
-  /* DARK MODE */
   --bg-app: #09090b;
   --bg-sidebar: #0c0c0e;
   --bg-card: #11131c;
   --bg-muted: #181b28;
   --border-app: #27272a;
-  --border-muted: #1f2438;
   --text-main: #fafafa;
   --text-muted: #a1a1aa;
-  --bubble-bot: #18181b;
-  --bubble-user: #fafafa;
-  --bubble-user-text: #09090b;
-  --code-bg: #09090b;
 }
 
 body {
@@ -38,73 +26,564 @@ body {
   background-color: var(--bg-app);
   color: var(--text-main);
   overflow: hidden;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition: background-color 0.15s ease, color 0.15s ease;
 }
-
-/* Clases de utilidad adaptables Light / Dark */
-html:not(.dark) .bg-\[\#09090b\] { background-color: #ffffff !important; }
-html:not(.dark) .bg-\[\#0c0c0e\] { background-color: #f8fafc !important; }
-html:not(.dark) .bg-zinc-950\/40, 
-html:not(.dark) .bg-zinc-950\/60,
-html:not(.dark) .bg-zinc-950 { background-color: #f1f5f9 !important; }
-html:not(.dark) .bg-zinc-900 { background-color: #e2e8f0 !important; }
-html:not(.dark) .border-zinc-800,
-html:not(.dark) .border-zinc-800\/60 { border-color: #e2e8f0 !important; }
-html:not(.dark) .text-zinc-100 { color: #0f172a !important; }
-html:not(.dark) .text-zinc-200 { color: #1e293b !important; }
-html:not(.dark) .text-zinc-300 { color: #334155 !important; }
-html:not(.dark) .text-zinc-400 { color: #64748b !important; }
-html:not(.dark) .text-zinc-500 { color: #94a3b8 !important; }
-html:not(.dark) .hover\:bg-zinc-800:hover { background-color: #e2e8f0 !important; }
-html:not(.dark) .hover\:bg-zinc-900:hover { background-color: #f1f5f9 !important; }
-
-/* Landing page helpers en Light Mode */
-html:not(.dark) .bg-\[\#090a0f\] { background-color: #f8fafc !important; }
-html:not(.dark) .text-slate-100 { color: #0f172a !important; }
-html:not(.dark) .text-white { color: #0f172a !important; }
-html:not(.dark) .text-slate-200 { color: #1e293b !important; }
-html:not(.dark) .text-slate-300 { color: #334155 !important; }
-html:not(.dark) .text-slate-400 { color: #64748b !important; }
-html:not(.dark) .bg-surface-card { background-color: #ffffff !important; border-color: #e2e8f0 !important; }
-html:not(.dark) .bg-surface-muted { background-color: #f1f5f9 !important; }
-html:not(.dark) .bg-surface { background-color: #f8fafc !important; }
-html:not(.dark) .border-surface-border,
-html:not(.dark) .border-surface-border\/60,
-html:not(.dark) .border-surface-border\/80 { border-color: #e2e8f0 !important; }
-html:not(.dark) .glass { background: rgba(255, 255, 255, 0.85) !important; border-color: rgba(0, 0, 0, 0.08) !important; }
 
 code, pre, kbd {
   font-family: 'Geist Mono', monospace;
 }
 
-/* shadcn card & panels */
-.shadcn-card {
-  background-color: #0c0c0e;
+/* ========================================================
+   MODO CLARO (LIGHT MODE) EXHAUSTIVO
+======================================================== */
+html:not(.dark) {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+/* Fondos principales en Modo Claro */
+html:not(.dark) body {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+html:not(.dark) main,
+html:not(.dark) .bg-\[\#09090b\],
+html:not(.dark) .bg-\[\#090a0f\] {
+  background-color: #f8fafc !important;
+}
+
+html:not(.dark) aside,
+html:not(.dark) .bg-\[\#0c0c0e\] {
+  background-color: #ffffff !important;
+}
+
+html:not(.dark) .bg-zinc-950,
+html:not(.dark) .bg-zinc-950\/40,
+html:not(.dark) .bg-zinc-950\/60 {
+  background-color: #f1f5f9 !important;
+}
+
+html:not(.dark) .bg-zinc-900,
+html:not(.dark) .bg-zinc-900\/60,
+html:not(.dark) .bg-zinc-900\/50 {
+  background-color: #f1f5f9 !important;
+}
+
+/* Bordes en Modo Claro */
+html:not(.dark) .border-zinc-800,
+html:not(.dark) .border-zinc-800\/60,
+html:not(.dark) .border-zinc-800\/80,
+html:not(.dark) .border-zinc-700,
+html:not(.dark) .border-zinc-700\/60,
+html:not(.dark) .border-surface-border,
+html:not(.dark) .border-surface-border\/60,
+html:not(.dark) .border-surface-border\/80 {
+  border-color: #e2e8f0 !important;
+}
+
+/* Textos legibles y oscuros en Modo Claro */
+html:not(.dark) .text-zinc-100,
+html:not(.dark) .text-slate-100,
+html:not(.dark) .text-white {
+  color: #0f172a !important;
+}
+
+html:not(.dark) .text-zinc-200,
+html:not(.dark) .text-slate-200 {
+  color: #1e293b !important;
+}
+
+html:not(.dark) .text-zinc-300,
+html:not(.dark) .text-slate-300 {
+  color: #334155 !important;
+}
+
+html:not(.dark) .text-zinc-400,
+html:not(.dark) .text-slate-400 {
+  color: #475569 !important;
+}
+
+html:not(.dark) .text-zinc-500,
+html:not(.dark) .text-slate-500 {
+  color: #64748b !important;
+}
+
+/* Botones y Hovers en Modo Claro */
+html:not(.dark) .hover\:bg-zinc-800:hover,
+html:not(.dark) .hover\:bg-zinc-900:hover,
+html:not(.dark) .hover\:bg-zinc-800\/80:hover {
+  background-color: #e2e8f0 !important;
+}
+
+html:not(.dark) .hover\:text-zinc-100:hover,
+html:not(.dark) .hover\:text-white:hover {
+  color: #0f172a !important;
+}
+
+/* Formulario de entrada de chat en Modo Claro */
+html:not(.dark) #chat-form {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05) !important;
+}
+
+html:not(.dark) #message-input {
+  color: #0f172a !important;
+}
+
+html:not(.dark) #message-input::placeholder {
+  color: #94a3b8 !important;
+}
+
+html:not(.dark) #send-btn {
+  background-color: #0f172a !important;
+  color: #ffffff !important;
+}
+
+html:not(.dark) #send-btn:hover {
+  background-color: #334155 !important;
+}
+
+/* Botón de Representación en Topbar y Mensajes */
+html:not(.dark) #btn-representation,
+html:not(.dark) button[onclick*="openRepresentationModal"] {
+  background-color: #fef3c7 !important;
+  border-color: #fde68a !important;
+  color: #92400e !important;
+}
+
+html:not(.dark) #btn-representation i,
+html:not(.dark) button[onclick*="openRepresentationModal"] i {
+  color: #b45309 !important;
+}
+
+/* Badges de memoria y estado */
+html:not(.dark) #active-bot-type-badge {
+  background-color: #ecfdf5 !important;
+  border-color: #a7f3d0 !important;
+  color: #065f46 !important;
+}
+
+html:not(.dark) .border-emerald-900\/60,
+html:not(.dark) .bg-emerald-950\/40 {
+  background-color: #ecfdf5 !important;
+  border-color: #a7f3d0 !important;
+  color: #065f46 !important;
+}
+
+html:not(.dark) .border-purple-800\/40,
+html:not(.dark) .bg-purple-950\/30,
+html:not(.dark) .bg-purple-950\/20 {
+  background-color: #f5f3ff !important;
+  border-color: #ddd6fe !important;
+  color: #6b21a8 !important;
+}
+
+html:not(.dark) .border-indigo-500\/20,
+html:not(.dark) .bg-indigo-500\/10 {
+  background-color: #eef2ff !important;
+  border-color: #c7d2fe !important;
+  color: #3730a3 !important;
+}
+
+/* Modales / Dialogs en Modo Claro */
+html:not(.dark) #modal-representation > div,
+html:not(.dark) #modal-settings > div,
+html:not(.dark) #modal-bot-profile > div,
+html:not(.dark) #modal-knowledge > div {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.25) !important;
+}
+
+/* ========================================================
+   MODAL CREAR / EDITAR IDENTIDAD (BOT PROFILE) EN MODO CLARO
+======================================================== */
+html:not(.dark) #modal-bot-profile label,
+html:not(.dark) #modal-settings label,
+html:not(.dark) #modal-knowledge label {
+  color: #1e293b !important;
+  font-weight: 600 !important;
+}
+
+/* Inputs, Selects y Textareas dentro de modales */
+html:not(.dark) #modal-bot-profile input[type="text"],
+html:not(.dark) #modal-bot-profile select,
+html:not(.dark) #modal-bot-profile textarea,
+html:not(.dark) #modal-settings input,
+html:not(.dark) #modal-knowledge input,
+html:not(.dark) #modal-knowledge textarea {
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+}
+
+html:not(.dark) #modal-bot-profile input:focus,
+html:not(.dark) #modal-bot-profile select:focus,
+html:not(.dark) #modal-bot-profile textarea:focus,
+html:not(.dark) #modal-settings input:focus,
+html:not(.dark) #modal-knowledge input:focus,
+html:not(.dark) #modal-knowledge textarea:focus {
+  background-color: #ffffff !important;
+  border-color: #0f172a !important;
+  outline: none !important;
+}
+
+/* Tarjetas de Selección de Memoria (Simple vs RAG) en Modo Claro */
+html:not(.dark) #modal-bot-profile label.has-\[\:checked\]\:bg-zinc-900,
+html:not(.dark) #modal-bot-profile label.has-\[\:checked\]\:border-zinc-400 {
+  background-color: #f1f5f9 !important;
+  border-color: #64748b !important;
+}
+
+html:not(.dark) #modal-bot-profile label:has(input[value="simple"]) {
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+}
+
+html:not(.dark) #modal-bot-profile label:has(input[value="simple"]:checked) {
+  background-color: #f1f5f9 !important;
+  border-color: #0f172a !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+}
+
+html:not(.dark) #modal-bot-profile label:has(input[value="rag"]) {
+  background-color: #fcfaff !important;
+  border-color: #e9d5ff !important;
+}
+
+html:not(.dark) #modal-bot-profile label:has(input[value="rag"]:checked) {
+  background-color: #f5f3ff !important;
+  border-color: #9333ea !important;
+  box-shadow: 0 1px 3px rgba(147, 51, 234, 0.15) !important;
+}
+
+html:not(.dark) #modal-bot-profile label:has(input[value="rag"]) span.text-purple-300 {
+  color: #7e22ce !important;
+}
+
+/* Selector de Emojis de Avatar */
+html:not(.dark) #modal-bot-profile button[onclick*="setFormAvatar"] {
+  background-color: #f1f5f9 !important;
+  border: 1px solid #cbd5e1 !important;
+}
+
+html:not(.dark) #modal-bot-profile button[onclick*="setFormAvatar"]:hover {
+  background-color: #e2e8f0 !important;
+}
+
+/* Icono cabecera del bot en el modal */
+html:not(.dark) #modal-bot-icon {
+  background-color: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* Botones de acción del modal */
+html:not(.dark) #modal-bot-profile button[type="submit"],
+html:not(.dark) #modal-settings button[onclick*="saveApiSettings"],
+html:not(.dark) #modal-knowledge button[type="submit"] {
+  background-color: #0f172a !important;
+  color: #ffffff !important;
+}
+
+html:not(.dark) #modal-bot-profile button[type="submit"]:hover,
+html:not(.dark) #modal-settings button[onclick*="saveApiSettings"]:hover,
+html:not(.dark) #modal-knowledge button[type="submit"]:hover {
+  background-color: #334155 !important;
+}
+
+html:not(.dark) #btn-delete-bot {
+  background-color: #fef2f2 !important;
+  border-color: #fecaca !important;
+  color: #b91c1c !important;
+}
+
+html:not(.dark) #btn-delete-bot:hover {
+  background-color: #fee2e2 !important;
+}
+
+/* ========================================================
+   MODAL DE REPRESENTACIÓN: CONTRASTE Y JERARQUÍA EN MODO CLARO
+======================================================== */
+html:not(.dark) #modal-representation > div {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 25px 50px -12px rgba(15, 23, 42, 0.2) !important;
+}
+
+/* Contenedor del Diagrama del Pipeline en Modo Claro */
+html:not(.dark) #modal-representation .shadow-inner {
+  background-color: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+}
+
+/* Cada paso rectangular (1..6) del diagrama en Modo Claro */
+html:not(.dark) #modal-representation .shadow-inner .grid > div {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06) !important;
+}
+
+html:not(.dark) #modal-representation .shadow-inner .grid > div span.font-medium {
+  color: #0f172a !important;
+  font-weight: 600 !important;
+}
+
+html:not(.dark) #modal-representation .shadow-inner .grid > div span.font-mono {
+  color: #475569 !important;
+  font-weight: 500 !important;
+}
+
+/* Círculos numerados de los pasos del pipeline */
+html:not(.dark) #modal-representation .shadow-inner .grid > div span.rounded-full {
+  background-color: #e2e8f0 !important;
+  border-color: #94a3b8 !important;
+  color: #0f172a !important;
+}
+
+/* Tarjetas de Métricas de la Ejecución (Latencia, Tokens, Modelo) */
+html:not(.dark) #modal-representation .grid.grid-cols-2.sm\:grid-cols-4 > div {
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05) !important;
+}
+
+html:not(.dark) #modal-representation .grid.grid-cols-2.sm\:grid-cols-4 span.text-zinc-500 {
+  color: #475569 !important;
+  font-weight: 600 !important;
+}
+
+html:not(.dark) #rep-stat-time {
+  color: #b45309 !important;
+}
+
+html:not(.dark) #rep-stat-prompt-tokens {
+  color: #0f172a !important;
+}
+
+html:not(.dark) #rep-stat-completion-tokens {
+  color: #047857 !important;
+}
+
+html:not(.dark) #rep-stat-model {
+  color: #1e293b !important;
+}
+
+/* Tarjetas de Desglose Paso a Paso (Paso 1, 2, 3...) */
+.modal-step-card {
+  background-color: #0f111a;
+  border: 1px solid #1f2438;
+}
+
+html:not(.dark) .modal-step-card {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04) !important;
+}
+
+html:not(.dark) .modal-step-card h5 {
+  color: #0f172a !important;
+  font-weight: 700 !important;
+}
+
+html:not(.dark) .modal-step-card p {
+  color: #334155 !important;
+  font-size: 0.815rem !important;
+  line-height: 1.55 !important;
+}
+
+/* Bloque <pre> de código y métricas técnicas desplegables */
+.modal-step-pre {
+  background-color: #090a0f;
+  border: 1px solid #1f2438;
+  color: #cbd5e1;
+}
+
+html:not(.dark) .modal-step-pre {
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+}
+
+/* Badge de bot en la cabecera del modal */
+html:not(.dark) #rep-bot-badge {
+  background-color: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
+  font-weight: 600 !important;
+}
+
+/* ========================================================
+   ELEMENTOS DE LA LISTA DE BOTS (SIDEBAR)
+======================================================== */
+.bot-item-card {
+  border-color: transparent;
+}
+
+.bot-item-active {
+  background-color: #18181b;
+  border-color: #27272a;
+}
+
+html:not(.dark) .bot-item-active {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05) !important;
+}
+
+.bot-avatar-box {
+  background-color: #18181b;
   border: 1px solid #27272a;
 }
 
-.shadcn-card-hover:hover {
+html:not(.dark) .bot-avatar-box {
+  background-color: #f1f5f9 !important;
+  border-color: #e2e8f0 !important;
+}
+
+.bot-provider-badge {
+  background-color: #27272a;
+  border: 1px solid #3f3f46;
+  color: #a1a1aa;
+}
+
+html:not(.dark) .bot-provider-badge {
+  background-color: #f1f5f9 !important;
+  border-color: #e2e8f0 !important;
+  color: #475569 !important;
+}
+
+/* ========================================================
+   CABECERAS CATEGORIZADAS DE LA LISTA DE BOTS (RAG VS SIMPLE)
+======================================================== */
+.category-header-rag {
+  background-color: rgba(88, 28, 135, 0.2);
+  border-color: rgba(147, 51, 234, 0.4);
+  color: #d8b4fe;
+}
+
+html:not(.dark) .category-header-rag {
+  background-color: #f3e8ff !important;
+  border-color: #c084fc !important;
+  color: #581c87 !important;
+  box-shadow: 0 1px 2px rgba(88, 28, 135, 0.06) !important;
+}
+
+.category-header-simple {
+  background-color: rgba(6, 78, 59, 0.2);
+  border-color: rgba(16, 185, 129, 0.4);
+  color: #6ee7b7;
+}
+
+html:not(.dark) .category-header-simple {
+  background-color: #dcfce7 !important;
+  border-color: #86efac !important;
+  color: #14532d !important;
+  box-shadow: 0 1px 2px rgba(6, 78, 59, 0.06) !important;
+}
+
+.category-count-badge {
+  background-color: rgba(0, 0, 0, 0.3);
+  color: inherit;
+}
+
+html:not(.dark) .category-header-rag .category-count-badge {
+  background-color: #e9d5ff !important;
+  color: #581c87 !important;
+  border: 1px solid #d8b4fe !important;
+}
+
+html:not(.dark) .category-header-simple .category-count-badge {
+  background-color: #bbf7d0 !important;
+  color: #14532d !important;
+  border: 1px solid #86efac !important;
+}
+
+.badge-simple {
+  background-color: #27272a;
+  border: 1px solid #3f3f46;
+  color: #d4d4d8;
+}
+
+html:not(.dark) .badge-simple {
+  background-color: #f1f5f9 !important;
+  border-color: #cbd5e1 !important;
+  color: #1e293b !important;
+}
+
+.badge-rag {
+  background-color: rgba(88, 28, 135, 0.25);
+  border: 1px solid rgba(147, 51, 234, 0.4);
+  color: #d8b4fe;
+}
+
+html:not(.dark) .badge-rag {
+  background-color: #f5f3ff !important;
+  border-color: #c084fc !important;
+  color: #6b21a8 !important;
+}
+
+.badge-doc-count {
   background-color: #18181b;
-  border-color: #3f3f46;
+  border: 1px solid #27272a;
+  color: #a1a1aa;
 }
 
-/* Scrollbar sutil estilo shadcn */
-::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+html:not(.dark) .badge-doc-count {
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: #475569 !important;
 }
 
-::-webkit-scrollbar-track {
-  background: transparent;
+html:not(.dark) input,
+html:not(.dark) select,
+html:not(.dark) textarea {
+  background-color: #ffffff !important;
+  border-color: #cbd5e1 !important;
+  color: #0f172a !important;
 }
 
-::-webkit-scrollbar-thumb {
-  background: #27272a;
-  border-radius: 9999px;
+/* Landing page helpers en Light Mode */
+html:not(.dark) .bg-surface-card { background-color: #ffffff !important; border-color: #e2e8f0 !important; }
+html:not(.dark) .bg-surface-muted { background-color: #f1f5f9 !important; }
+html:not(.dark) .bg-surface { background-color: #ffffff !important; }
+html:not(.dark) .glass { background: rgba(255, 255, 255, 0.9) !important; border-color: rgba(0, 0, 0, 0.08) !important; }
+
+/* ========================================================
+   BURBUJAS DE CHAT EN MODO CLARO Y OSCURO
+======================================================== */
+.chat-bubble-bot {
+  background-color: #0c0c0e;
+  border: 1px solid #27272a;
+  color: #fafafa;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: #3f3f46;
+html:not(.dark) .chat-bubble-bot {
+  background-color: #ffffff !important;
+  border-color: #e2e8f0 !important;
+  color: #0f172a !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05) !important;
+}
+
+.chat-bubble-user {
+  background-color: #f4f4f5;
+  color: #18181b;
+}
+
+html:not(.dark) .chat-bubble-user {
+  background-color: #0f172a !important;
+  color: #ffffff !important;
+}
+
+html:not(.dark) .chat-bubble-user div.text-zinc-600 {
+  color: #94a3b8 !important;
+}
+
+html:not(.dark) .chat-bubble-user div.text-zinc-500 {
+  color: #cbd5e1 !important;
 }
 
 /* Markdown styling inside messages (shadcn prose) */
@@ -112,6 +591,10 @@ code, pre, kbd {
   font-size: 0.925rem;
   line-height: 1.65;
   color: #e4e4e7;
+}
+
+html:not(.dark) .prose-chat {
+  color: #1e293b !important;
 }
 
 .prose-chat p {
@@ -128,6 +611,12 @@ code, pre, kbd {
   margin-top: 1rem;
   margin-bottom: 0.5rem;
   letter-spacing: -0.02em;
+}
+
+html:not(.dark) .prose-chat h1,
+html:not(.dark) .prose-chat h2,
+html:not(.dark) .prose-chat h3 {
+  color: #0f172a !important;
 }
 
 .prose-chat h1 { font-size: 1.25rem; }
@@ -159,6 +648,11 @@ code, pre, kbd {
   font-style: italic;
 }
 
+html:not(.dark) .prose-chat blockquote {
+  border-left-color: #cbd5e1 !important;
+  color: #64748b !important;
+}
+
 .prose-chat code:not(pre code) {
   background: #18181b;
   color: #f4f4f5;
@@ -166,6 +660,12 @@ code, pre, kbd {
   border-radius: 0.25rem;
   font-size: 0.825em;
   border: 1px solid #27272a;
+}
+
+html:not(.dark) .prose-chat code:not(pre code) {
+  background: #f1f5f9 !important;
+  color: #0f172a !important;
+  border-color: #e2e8f0 !important;
 }
 
 .prose-chat pre {
@@ -177,6 +677,11 @@ code, pre, kbd {
   margin: 0.75rem 0;
 }
 
+html:not(.dark) .prose-chat pre {
+  background: #f8fafc !important;
+  border-color: #e2e8f0 !important;
+}
+
 .prose-chat pre code {
   color: #e4e4e7;
   font-size: 0.825rem;
@@ -184,6 +689,10 @@ code, pre, kbd {
   background: transparent;
   padding: 0;
   border: none;
+}
+
+html:not(.dark) .prose-chat pre code {
+  color: #0f172a !important;
 }
 
 /* Typing bounce indicator */
@@ -195,10 +704,223 @@ code, pre, kbd {
   animation: typingBounce 1.4s infinite ease-in-out both;
 }
 
+html:not(.dark) .typing-dot {
+  background-color: #64748b !important;
+}
+
 .typing-dot:nth-child(1) { animation-delay: -0.32s; }
 .typing-dot:nth-child(2) { animation-delay: -0.16s; }
 
 @keyframes typingBounce {
   0%, 80%, 100% { transform: scale(0.4); opacity: 0.3; }
   40% { transform: scale(1); opacity: 1; }
+}
+
+/* Scrollbar sutil estilo shadcn */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #27272a;
+  border-radius: 9999px;
+}
+
+html:not(.dark) ::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #3f3f46;
+}
+
+html:not(.dark) ::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Retratos WebP en lista, cabecera y mensajes. */
+.bot-avatar-image { width: 100%; height: 100%; object-fit: cover; border-radius: inherit; display: block; }
+
+
+/* Perfiles legibles en ambos temas: retrato amplio y nombre completo. */
+#bots-list .bot-item-card {
+  padding: 12px;
+  margin-bottom: 6px;
+  color: var(--text-main);
+  border: 1px solid var(--border-app);
+  background: var(--bg-card);
+}
+#bots-list .bot-item-card:hover {
+  background: var(--bg-sidebar);
+  border-color: #94a3b8;
+}
+#bots-list .bot-item-active {
+  border-color: #6366f1 !important;
+  background: #eef2ff !important;
+  box-shadow: inset 3px 0 #6366f1;
+}
+html.dark #bots-list .bot-item-active { background: #1e1b36 !important; }
+.bot-card-layout { display: flex; align-items: flex-start; gap: 12px; }
+#bots-list .bot-list-avatar {
+  width: 56px;
+  height: 56px;
+  flex: 0 0 56px;
+  overflow: hidden;
+  border-radius: 12px;
+  margin-top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+}
+.bot-card-heading { display: flex; flex-direction: column; align-items: flex-start; gap: 5px; }
+#bots-list .bot-card-name {
+  color: var(--text-main);
+  font-size: 14px;
+  font-weight: 650;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+#bots-list .bot-card-role {
+  color: var(--text-muted);
+  font-size: 12px;
+  line-height: 1.5;
+  margin-top: 5px;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+#bots-list .bot-provider-badge,
+#bots-list .badge-rag,
+#bots-list .badge-simple,
+#bots-list .badge-doc-count { font-size: 10px; line-height: 1.5; padding: 2px 5px; }
+#active-bot-avatar { width: 44px; height: 44px; overflow: hidden; }
+#active-bot-name { font-size: 16px; }
+
+/* La cabecera translúcida también debe seguir el tema elegido. */
+main > header {
+  background-color: var(--bg-app) !important;
+  flex-wrap: wrap;
+  height: auto;
+  min-height: 64px;
+  gap: 10px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+main > header > :first-child { flex: 1 1 260px; }
+main > header > :last-child { flex-shrink: 0; }
+
+/* Confirmación de limpieza: dialog nativo con foco y Escape. */
+#modal-clear-chat {
+  margin: auto;
+  width: min(440px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+  background: var(--bg-card);
+  color: var(--text-main);
+  border: 1px solid var(--border-app);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 24px 80px #0005;
+}
+#modal-clear-chat::backdrop { background: #02061799; backdrop-filter: blur(3px); }
+#clear-chat-title { font-size: 18px; font-weight: 650; margin-bottom: 12px; }
+#clear-chat-description, .clear-chat-note { font-size: 14px; line-height: 1.6; }
+.clear-chat-note { color: var(--text-muted); margin-top: 12px; }
+#clear-chat-error { color: #dc2626; font-size: 13px; margin-top: 12px; }
+.clear-chat-actions { display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap; margin-top: 24px; }
+.clear-chat-actions button { border-radius: 8px; padding: 9px 12px; font-size: 13px; font-weight: 600; cursor: pointer; }
+#cancel-clear-chat { background: var(--bg-muted); color: var(--text-main); border: 1px solid var(--border-app); }
+#confirm-clear-chat { background: #b91c1c; color: #fff; border: 1px solid #b91c1c; }
+#confirm-clear-chat:hover { background: #991b1b; }
+.clear-chat-actions button:focus-visible { outline: 2px solid #6366f1; outline-offset: 3px; }
+.clear-chat-actions button:disabled { opacity: .6; cursor: wait; }
+
+/* Altura útil en móviles, incluido teclado y áreas seguras. */
+html, body { height: 100%; }
+#app-layout { height: 100dvh; }
+main, #messages-container { min-width: 0; min-height: 0; }
+.prose-chat { overflow-wrap: anywhere; min-width: 0; }
+.prose-chat pre, .prose-chat table { max-width: 100%; overflow-x: auto; }
+.prose-chat table { display: block; }
+#open-sidebar, #close-sidebar { display: none; }
+.sidebar-backdrop { display: none; }
+#modal-settings > div { max-height: calc(100dvh - 32px); overflow-y: auto; }
+@media (max-width: 767px) {
+  #open-sidebar, #close-sidebar {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 44px; height: 44px; flex: 0 0 44px; border-radius: 10px;
+    color: var(--text-main); background: var(--bg-muted); border: 1px solid var(--border-app);
+    font-size: 20px;
+  }
+  #chat-sidebar {
+    position: fixed; inset: 0 auto 0 0; height: 100dvh;
+    width: min(340px, calc(100vw - 44px)); z-index: 40;
+    visibility: hidden; transform: translateX(-100%);
+    transition: transform .18s ease, visibility .18s;
+    padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom);
+  }
+  .sidebar-open #chat-sidebar { visibility: visible; transform: translateX(0); }
+  .sidebar-open .sidebar-backdrop:not([hidden]) { display: block; position: fixed; inset: 0; z-index: 35; background: #02061799; }
+  #chat-sidebar > div:first-child { padding-inline: 10px; gap: 6px; }
+  #chat-sidebar > div:first-child > :first-child { gap: 6px; }
+  #chat-sidebar > div:first-child > :first-child span.ml-1\.5 { display: none; }
+  main { width: 100%; }
+  main > header {
+    padding: max(8px, env(safe-area-inset-top)) 12px 8px;
+    gap: 8px; min-height: 0;
+  }
+  main > header > .chat-header-identity { flex: 1 1 100%; gap: 8px; }
+  .chat-header-identity > .min-w-0 { flex: 1; }
+  .chat-header-identity > .min-w-0 > div:first-child { flex-wrap: wrap; gap: 4px 8px; }
+  #active-bot-name { font-size: 15px; }
+  #active-bot-avatar { width: 40px; height: 40px; }
+  #active-bot-role, #active-bot-provider { font-size: 10px; }
+  #active-bot-role { max-width: 100%; }
+  .chat-header-identity > .min-w-0 > div:last-child { flex-wrap: wrap; gap: 2px 6px; }
+  .chat-header-actions { width: 100%; gap: 6px; }
+  .chat-header-actions button { min-height: 44px; justify-content: center; padding-inline: 9px; font-size: 11px; }
+  #btn-representation { flex: 1; }
+  #btn-knowledge-base { flex: 1; }
+  #btn-knowledge-base > span:first-of-type { font-size: 0; }
+  #btn-knowledge-base > span:first-of-type::after { content: 'Documentos'; font-size: 11px; }
+  #messages-container { padding: 16px 12px; }
+  #messages-container > div { max-width: 100%; min-width: 0; }
+  #messages-container .max-w-\[85\%\] { max-width: 92%; }
+  .prose-chat { font-size: 14px; line-height: 1.65; }
+  .prose-chat pre { white-space: pre; }
+  .chat-composer { padding: 6px 10px max(10px, env(safe-area-inset-bottom)); }
+  #quick-prompts-bar { max-width: 100%; }
+  #quick-prompts-bar button { min-height: 36px; }
+  #quick-prompts-bar > span { display: none; }
+  #message-input { font-size: 16px; min-height: 42px; }
+  #chat-form kbd { display: none; }
+  #send-btn { width: 44px; height: 44px; }
+  [id^="modal-"]:not(dialog) { padding: 10px; }
+  [id^="modal-"]:not(dialog) > div {
+    padding: 16px; max-height: calc(100dvh - 20px); min-width: 0;
+  }
+  [id^="modal-"] input, [id^="modal-"] textarea, [id^="modal-"] select { font-size: 16px !important; }
+  [id^="modal-"] button { min-height: 40px; }
+  #modal-knowledge form.flex { flex-wrap: wrap; }
+  #test-search-query { width: 100%; min-width: 0; flex-basis: 100%; }
+  #modal-representation pre { max-width: 100%; overflow-x: auto; }
+  #modal-bot-profile form, #modal-knowledge > div > div { min-height: 0; }
+  .clear-chat-actions { flex-direction: column-reverse; }
+  .clear-chat-actions button { width: 100%; min-height: 44px; }
+}
+@media (prefers-reduced-motion: reduce) { #chat-sidebar { transition: none; } }
+
+html:not(.dark) #btn-knowledge-base { color: #6b21a8; background: #f5f3ff; border-color: #d8b4fe; }
+html:not(.dark) #active-bot-doc-count { color: #581c87; background: #e9d5ff; }
+@media (max-width: 767px) {
+  .chat-header-actions { flex-wrap: wrap; min-width: 0; }
+  .chat-header-actions button { flex-shrink: 0; min-width: 44px; }
+  #btn-representation, #btn-knowledge-base { flex: 1 1 100px; }
 }

@@ -2,7 +2,7 @@
 <html lang="es" class="dark">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>MBot Studio | Chatbots con Identidad y Memoria SQLite</title>
   <meta name="description" content="Plataforma de chatbots con identidad, memoria SQLite y RAG Embeddings con interfaz estilo shadcn/ui.">
   
@@ -16,10 +16,11 @@
 <body class="bg-[#09090b] text-zinc-100 h-screen w-screen overflow-hidden flex flex-col antialiased selection:bg-zinc-800 selection:text-white">
 
   <!-- ================= LAYOUT DE ESCRITORIO (PC FIRST) ================= -->
-  <div class="flex h-screen w-full overflow-hidden">
+  <div id="app-layout" class="flex h-screen w-full overflow-hidden">
     
     <!-- ================= SIDEBAR ESTILO SHADCN (IZQUIERDA) ================= -->
-    <aside class="w-72 lg:w-80 shrink-0 border-r border-zinc-800 bg-[#0c0c0e] flex flex-col h-full select-none">
+    <button id="sidebar-backdrop" class="sidebar-backdrop" type="button" aria-label="Cerrar lista de chats" onclick="closeMobileSidebar()" hidden></button>
+    <aside id="chat-sidebar" aria-label="Lista de chats" class="w-72 lg:w-80 shrink-0 border-r border-zinc-800 bg-[#0c0c0e] flex flex-col h-full select-none">
       
       <!-- Cabecera de la Barra Lateral -->
       <div class="h-14 px-4 border-b border-zinc-800 flex items-center justify-between shrink-0">
@@ -33,6 +34,7 @@
           </div>
         </div>
 
+        <button id="close-sidebar" type="button" aria-label="Cerrar chats" onclick="closeMobileSidebar()">✕</button>
         <!-- Botones de Acción Sidebar -->
         <div class="flex items-center gap-1">
           <!-- Botón Toggle Modo Claro / Oscuro -->
@@ -98,7 +100,8 @@
       <header class="h-14 px-4 sm:px-6 border-b border-zinc-800 bg-[#09090b]/90 backdrop-blur-sm flex items-center justify-between shrink-0 z-20">
         
         <!-- Identidad del Bot Activo -->
-        <div class="flex items-center gap-3 min-w-0">
+        <div class="chat-header-identity flex items-center gap-3 min-w-0">
+          <button id="open-sidebar" type="button" onclick="openMobileSidebar()" aria-label="Abrir lista de chats" aria-controls="chat-sidebar" aria-expanded="false">☰</button>
           <div id="active-bot-avatar" class="w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center text-base shrink-0 shadow-xs">
             🤖
           </div>
@@ -118,7 +121,7 @@
         </div>
 
         <!-- Botones de Acción Superiores (shadcn Buttons) -->
-        <div class="flex items-center gap-2">
+        <div class="chat-header-actions flex items-center gap-2">
           
           <!-- Botón REPRESENTACIÓN (Destacado para auditoría de flujo) -->
           <button 
@@ -144,7 +147,7 @@
 
           <!-- Botón Editar Identidad -->
           <button 
-            onclick="openEditBotModal()" 
+            aria-label="Editar identidad" onclick="openEditBotModal()" 
             class="h-8 px-2.5 rounded-md border border-zinc-800 hover:border-zinc-700 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 text-xs font-medium flex items-center gap-1.5 transition"
             title="Editar Identidad y System Prompt"
           >
@@ -154,7 +157,7 @@
 
           <!-- Botón Limpiar Historial -->
           <button 
-            onclick="clearChatHistory()" 
+            aria-label="Limpiar conversación" onclick="clearChatHistory()" 
             class="h-8 px-2.5 rounded-md border border-zinc-800 hover:border-red-900/40 bg-zinc-900 hover:bg-red-950/30 text-zinc-400 hover:text-red-400 text-xs font-medium flex items-center gap-1.5 transition"
             title="Limpiar Memoria de esta conversación"
           >
@@ -174,7 +177,7 @@
       </div>
 
       <!-- PIE DEL CHAT: PROMPTS RÁPIDOS Y TEXTAREA ESTILO SHADCN -->
-      <div class="px-4 sm:px-6 pb-4 pt-1 bg-[#09090b] shrink-0 border-t border-zinc-800/60">
+      <div class="chat-composer px-4 sm:px-6 pb-4 pt-1 bg-[#09090b] shrink-0 border-t border-zinc-800/60">
         
         <div class="max-w-4xl mx-auto w-full space-y-2">
           
@@ -201,7 +204,7 @@
             <textarea
               id="message-input"
               rows="1"
-              placeholder="Escribe un mensaje al bot... (Enter para enviar, Shift+Enter para salto de línea)"
+              placeholder="Escribe un mensaje…"
               class="w-full bg-transparent text-zinc-100 placeholder-zinc-500 text-sm focus:outline-none resize-none max-h-36 px-2 py-1 leading-relaxed"
               onkeydown="handleInputKeydown(event)"
               oninput="autoResizeTextarea(this)"
@@ -217,7 +220,7 @@
               <div class="flex items-center gap-1.5">
                 <kbd class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-zinc-800 border border-zinc-700 text-zinc-400">Enter ↵</kbd>
                 <button
-                  id="send-btn"
+                  id="send-btn" aria-label="Enviar mensaje"
                   type="submit"
                   class="h-7 w-7 rounded-md bg-zinc-100 hover:bg-zinc-300 disabled:opacity-40 disabled:hover:bg-zinc-100 text-zinc-950 flex items-center justify-center transition shadow-xs"
                 >
@@ -443,9 +446,10 @@
               <input 
                 id="bot-form-avatar" 
                 type="text" 
-                maxlength="4" 
+                maxlength="2048"
+                placeholder="Emoji o /images/bots/alex.webp" 
                 value="🤖" 
-                class="w-12 text-center bg-zinc-900 border border-zinc-800 rounded-md py-1.5 text-lg focus:outline-none focus:border-zinc-500"
+                class="w-full min-w-0 text-center bg-zinc-900 border border-zinc-800 rounded-md py-1.5 text-lg focus:outline-none focus:border-zinc-500"
               />
               <div class="flex flex-wrap gap-1">
                 <button type="button" onclick="setFormAvatar('🤖')" class="p-1 hover:bg-zinc-800 rounded">🤖</button>
@@ -688,6 +692,19 @@
 
     </div>
   </div>
+
+  <dialog id="modal-clear-chat" aria-labelledby="clear-chat-title" aria-describedby="clear-chat-description">
+    <div class="clear-chat-content">
+      <h2 id="clear-chat-title">¿Limpiar conversación?</h2>
+      <p id="clear-chat-description">Se eliminará el historial de este chat con <strong id="clear-chat-bot-name"></strong>. Esta acción no se puede deshacer.</p>
+      <p class="clear-chat-note">La identidad del bot y sus documentos de conocimiento se conservarán.</p>
+      <p id="clear-chat-error" role="alert"></p>
+      <div class="clear-chat-actions">
+        <button id="cancel-clear-chat" type="button" onclick="closeClearChatModal()" autofocus>Cancelar</button>
+        <button id="confirm-clear-chat" type="button" onclick="confirmClearChatHistory()">Limpiar conversación</button>
+      </div>
+    </div>
+  </dialog>
 
   <!-- Scripts de la Aplicación -->
   <script src="/js/api.js"></script>

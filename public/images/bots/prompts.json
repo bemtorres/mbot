@@ -1,0 +1,41 @@
+{
+  "tool": "image_gen built-in",
+  "images": [
+    {
+      "file": "alex.webp",
+      "prompt": "Square avatar portrait of a friendly futuristic assistant robot with a white ceramic face and teal details. Cohesive polished painterly editorial illustration, centered head and shoulders, expressive warm face, muted deep blue background, soft cinematic light, clear silhouette legible at 32 pixels, no lettering, no border."
+    },
+    {
+      "file": "sophia.webp",
+      "prompt": "Square avatar portrait of Sophia, a fictional female AI scientist with dark hair and glasses. Cohesive polished painterly editorial illustration, centered head and shoulders, expressive warm face, muted deep blue background, soft cinematic light, clear silhouette legible at 32 pixels, no lettering, no border."
+    },
+    {
+      "file": "principito.webp",
+      "prompt": "Square avatar portrait of the Little Prince, a golden haired young space traveler with green coat and golden scarf. Cohesive polished painterly editorial illustration, centered head and shoulders, expressive warm face, muted deep blue background, soft cinematic light, clear silhouette legible at 32 pixels, no lettering, no border."
+    },
+    {
+      "file": "brayan.webp",
+      "prompt": "Square avatar portrait of Brayan, a fictional friendly young Chilean man wearing a baseball cap and casual streetwear. Cohesive polished painterly editorial illustration, centered head and shoulders, expressive warm face, muted deep blue background, soft cinematic light, clear silhouette legible at 32 pixels, no lettering, no border."
+    },
+    {
+      "file": "ohiggins.webp",
+      "prompt": "Square avatar portrait of Bernardo O'Higgins, Chilean independence leader in historical military uniform. Cohesive polished painterly editorial illustration, centered head and shoulders, expressive warm face, muted deep blue background, soft cinematic light, clear silhouette legible at 32 pixels, no lettering, no border."
+    },
+    {
+      "file": "prat.webp",
+      "prompt": "Square avatar portrait of Arturo Prat Chacón, Chilean naval officer with beard and historical navy uniform. Cohesive polished painterly editorial illustration, centered head and shoulders, expressive warm face, muted deep blue background, soft cinematic light, clear silhouette legible at 32 pixels, no lettering, no border."
+    },
+    {
+      "file": "mistral.webp",
+      "prompt": "Square avatar portrait of Gabriela Mistral, Chilean poet and teacher with dark swept back hair. Cohesive polished painterly editorial illustration, centered head and shoulders, expressive warm face, muted deep blue background, soft cinematic light, clear silhouette legible at 32 pixels, no lettering, no border."
+    },
+    {
+      "file": "socrates.webp",
+      "prompt": "Square avatar portrait of Socrates, ancient Greek philosopher with bald head, beard and simple robe. Cohesive polished painterly editorial illustration, centered head and shoulders, expressive warm face, muted deep blue background, soft cinematic light, clear silhouette legible at 32 pixels, no lettering, no border."
+    },
+    {
+      "file": "einstein.webp",
+      "prompt": "Square avatar portrait of Albert Einstein, elderly physicist with unruly white hair and mustache. Cohesive polished painterly editorial illustration, centered head and shoulders, expressive warm face, muted deep blue background, soft cinematic light, clear silhouette legible at 32 pixels, no lettering, no border."
+    }
+  ]
+}
