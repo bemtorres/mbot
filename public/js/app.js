@@ -99,8 +99,8 @@ function renderBotsList() {
     const isRag = bot.type === 'rag';
 
     const memoryBadgeClass = isRag 
-      ? 'bg-purple-500/10 text-purple-300 border-purple-500/20' 
-      : 'bg-emerald-500/10 text-emerald-300 border-emerald-500/20';
+      ? 'border border-purple-800/40 bg-purple-950/30 text-purple-300' 
+      : 'border border-zinc-700 bg-zinc-800/60 text-zinc-300';
 
     const memoryLabel = isRag ? '🧠 RAG Embeddings' : '📝 Memoria Simple';
     const providerLabel = bot.provider === 'deepseek' ? 'DeepSeek' : 'OpenAI';
@@ -108,36 +108,36 @@ function renderBotsList() {
     return `
       <div 
         onclick="selectBot('${bot.id}')"
-        class="group p-3 rounded-xl cursor-pointer transition border ${
+        class="group p-2.5 rounded-lg cursor-pointer transition border ${
           isActive 
-            ? 'bg-slate-800/90 border-indigo-500 shadow-md shadow-indigo-500/10' 
-            : 'bg-slate-900/60 border-slate-800/80 hover:bg-slate-800/50 hover:border-slate-700'
+            ? 'bg-zinc-900 border-zinc-800 text-zinc-100 shadow-xs' 
+            : 'border-transparent hover:border-zinc-800/80 hover:bg-zinc-900/50 text-zinc-400 hover:text-zinc-200'
         }"
       >
-        <div class="flex items-start gap-3">
-          <div class="w-9 h-9 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center text-lg shrink-0">
+        <div class="flex items-start gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center text-sm shrink-0 mt-0.5">
             ${bot.avatar || '🤖'}
           </div>
 
           <div class="flex-1 min-w-0">
             <div class="flex items-center justify-between gap-1">
-              <h4 class="font-bold text-sm text-white truncate ${isActive ? 'text-indigo-300' : ''}">
+              <h4 class="font-medium text-xs truncate ${isActive ? 'text-zinc-100 font-semibold' : 'text-zinc-300'}">
                 ${escapeHtml(bot.name)}
               </h4>
-              <span class="text-[10px] px-1.5 py-0.5 rounded font-mono uppercase bg-slate-800/80 text-slate-400 border border-slate-700/60 shrink-0">
+              <span class="text-[9px] px-1 py-0.2 rounded font-mono uppercase bg-zinc-800/80 text-zinc-400 border border-zinc-700/60 shrink-0">
                 ${providerLabel}
               </span>
             </div>
 
-            <p class="text-xs text-slate-400 truncate mt-0.5">${escapeHtml(bot.role || 'Asistente')}</p>
+            <p class="text-[11px] text-zinc-500 truncate mt-0.5">${escapeHtml(bot.role || 'Asistente')}</p>
 
-            <div class="flex items-center gap-1.5 mt-2 flex-wrap">
-              <span class="text-[10px] px-2 py-0.5 rounded-full border font-medium ${memoryBadgeClass}">
+            <div class="flex items-center gap-1.5 mt-1.5 flex-wrap">
+              <span class="text-[9px] font-mono px-1.5 py-0.2 rounded ${memoryBadgeClass}">
                 ${memoryLabel}
               </span>
               ${isRag ? `
-                <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-slate-800 text-slate-400 border border-slate-700">
-                  ${bot.document_count || 0} doc${bot.document_count === 1 ? '' : 's'}
+                <span class="text-[9px] font-mono px-1 py-0.2 rounded bg-zinc-900 text-zinc-400 border border-zinc-800">
+                  ${bot.document_count || 0} doc
                 </span>
               ` : ''}
             </div>
@@ -166,11 +166,11 @@ async function selectBot(botId) {
   const isRag = bot.type === 'rag';
   
   if (isRag) {
-    typeBadge.className = 'text-[11px] px-2 py-0.5 rounded-full font-medium bg-purple-500/10 text-purple-400 border border-purple-500/20';
+    typeBadge.className = 'text-[10px] px-2 py-0.5 rounded-full font-mono border border-purple-900/60 bg-purple-950/40 text-purple-300';
     typeBadge.innerText = 'Memoria RAG (Embeddings)';
   } else {
-    typeBadge.className = 'text-[11px] px-2 py-0.5 rounded-full font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20';
-    typeBadge.innerText = 'Memoria de Texto Simple (SQLite)';
+    typeBadge.className = 'text-[10px] px-2 py-0.5 rounded-full font-mono border border-emerald-900/60 bg-emerald-950/40 text-emerald-400';
+    typeBadge.innerText = 'Memoria Simple (SQLite)';
   }
 
   const providerLabel = bot.provider === 'deepseek' ? 'DeepSeek' : 'OpenAI';
@@ -238,15 +238,15 @@ function renderMessages() {
   
   if (state.messages.length === 0) {
     container.innerHTML = `
-      <div class="h-full flex flex-col items-center justify-center text-center p-6 text-slate-400">
-        <div class="w-16 h-16 rounded-2xl bg-slate-800/60 border border-slate-700/80 flex items-center justify-center text-3xl mb-3 shadow-inner">
+      <div class="h-full flex flex-col items-center justify-center text-center p-6 text-zinc-400">
+        <div class="w-14 h-14 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-2xl mb-3 shadow-sm">
           ${state.activeBot ? state.activeBot.avatar : '🤖'}
         </div>
-        <h4 class="text-base font-bold text-white mb-1">¡Inicia la conversación con ${escapeHtml(state.activeBot?.name || 'el bot')}!</h4>
-        <p class="text-xs text-slate-400 max-w-md">
+        <h4 class="text-sm font-semibold text-zinc-100 mb-1">Conversación con ${escapeHtml(state.activeBot?.name || 'el bot')}</h4>
+        <p class="text-xs text-zinc-400 max-w-md leading-relaxed">
           ${state.activeBot?.type === 'rag' 
-            ? 'Este bot cuenta con memoria aumentada por Embeddings de OpenAI y búsqueda semántica en SQLite.'
-            : 'Este bot cuenta con memoria conversacional de texto simple guardada directamente en SQLite.'}
+            ? 'Bot con memoria aumentada por Embeddings de OpenAI y búsqueda semántica en SQLite.'
+            : 'Bot con memoria conversacional de texto simple guardada en SQLite.'}
         </p>
       </div>
     `;
@@ -261,24 +261,24 @@ function renderMessages() {
     let sourcesHtml = '';
     if (!isUser && msg.context_used && Array.isArray(msg.context_used) && msg.context_used.length > 0) {
       const snippets = msg.context_used.map((src, i) => `
-        <div class="p-2.5 rounded-lg bg-slate-900/90 border border-purple-500/20 text-xs mt-1.5">
-          <div class="flex items-center justify-between text-[11px] text-purple-300 font-semibold mb-1">
+        <div class="p-2.5 rounded-lg bg-zinc-950 border border-zinc-800 text-xs mt-1.5">
+          <div class="flex items-center justify-between text-[11px] text-purple-300 font-medium mb-1">
             <span>📄 ${escapeHtml(src.doc_title || 'Documento')} (Fragmento #${src.chunk_index + 1})</span>
-            <span class="bg-purple-900/40 px-1.5 py-0.5 rounded border border-purple-500/30 font-mono text-[10px]">
+            <span class="bg-purple-950/60 text-purple-300 border border-purple-800/40 px-1.5 py-0.2 rounded font-mono text-[10px]">
               Similitud: ${(src.similarity * 100).toFixed(1)}%
             </span>
           </div>
-          <p class="text-slate-300 font-mono text-[11px] leading-relaxed">${escapeHtml(src.chunk_text)}</p>
+          <p class="text-zinc-400 font-mono text-[11px] leading-relaxed">${escapeHtml(src.chunk_text)}</p>
         </div>
       `).join('');
 
       sourcesHtml = `
         <details class="mt-2 text-xs group">
-          <summary class="cursor-pointer select-none inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-purple-500/10 text-purple-300 border border-purple-500/20 hover:bg-purple-500/20 transition text-[11px] font-medium">
+          <summary class="cursor-pointer select-none inline-flex items-center gap-1.5 px-2 py-1 rounded border border-purple-800/30 bg-purple-950/20 text-purple-300 hover:bg-purple-950/40 transition text-[11px] font-medium">
             <i data-lucide="brain" class="w-3.5 h-3.5"></i>
             <span>🧠 ${msg.context_used.length} fragmento${msg.context_used.length === 1 ? '' : 's'} de memoria RAG recuperado${msg.context_used.length === 1 ? '' : 's'}</span>
           </summary>
-          <div class="space-y-1.5 mt-2 pl-1 border-l-2 border-purple-500/40">
+          <div class="space-y-1.5 mt-2 pl-1 border-l-2 border-purple-700/40">
             ${snippets}
           </div>
         </details>
@@ -287,49 +287,48 @@ function renderMessages() {
 
     if (isUser) {
       return `
-        <div class="flex justify-end">
-          <div class="max-w-[85%] sm:max-w-[75%] rounded-2xl rounded-tr-sm bg-gradient-to-r from-indigo-600 to-indigo-700 text-white px-4 py-3 shadow-md shadow-indigo-600/15">
-            <div class="text-xs font-semibold text-indigo-200 mb-0.5 flex items-center justify-end gap-1">
-              <span>Tú</span>
+        <div class="max-w-4xl mx-auto flex justify-end">
+          <div class="max-w-[85%] sm:max-w-[70%] rounded-2xl rounded-tr-xs bg-zinc-100 text-zinc-900 px-4 py-2.5 shadow-xs text-sm leading-relaxed">
+            <div class="text-[11px] font-semibold text-zinc-600 mb-0.5 text-right">
+              Tú
             </div>
             <div class="text-sm leading-relaxed whitespace-pre-wrap">${escapeHtml(msg.content)}</div>
-            <div class="text-[10px] text-indigo-300/80 text-right mt-1">
+            <div class="text-[10px] text-zinc-500 text-right mt-1 font-mono">
               ${formatTime(msg.created_at)}
             </div>
           </div>
         </div>
       `;
     } else {
-      const hasTrace = Boolean(msg.trace || state.tracesByMessageId[msg.id]);
       const traceData = msg.trace || state.tracesByMessageId[msg.id];
       const traceBadgeText = traceData 
         ? `${traceData.totalTokens || 0} tokens • ${traceData.totalDurationMs || 0}ms`
         : 'Ver pipeline';
 
       return `
-        <div class="flex items-start gap-3">
-          <div class="w-8 h-8 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-base shrink-0 shadow-sm mt-0.5">
+        <div class="max-w-4xl mx-auto flex items-start gap-3">
+          <div class="w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center text-sm shrink-0 shadow-xs mt-0.5">
             ${state.activeBot ? state.activeBot.avatar : '🤖'}
           </div>
-          <div class="max-w-[92%] sm:max-w-[85%] rounded-2xl rounded-tl-sm bg-slate-900/80 border border-slate-800 text-slate-100 px-4 py-3 shadow-md">
-            <div class="flex items-center justify-between gap-2 mb-1">
-              <span class="text-xs font-bold text-indigo-300">${escapeHtml(state.activeBot?.name || 'Bot')}</span>
-              <span class="text-[10px] text-slate-500 font-mono">${formatTime(msg.created_at)}</span>
+          <div class="max-w-[95%] sm:max-w-[85%] rounded-2xl rounded-tl-xs bg-[#0c0c0e] border border-zinc-800 text-zinc-100 px-4 py-3 shadow-xs">
+            <div class="flex items-center justify-between gap-2 mb-1.5">
+              <span class="text-xs font-semibold text-zinc-200 tracking-tight">${escapeHtml(state.activeBot?.name || 'Bot')}</span>
+              <span class="text-[10px] text-zinc-500 font-mono">${formatTime(msg.created_at)}</span>
             </div>
             <div class="prose-chat text-sm leading-relaxed">${parsedContent}</div>
             ${sourcesHtml}
 
             <!-- Botón Representación Paso a Paso del Mensaje -->
-            <div class="mt-3 pt-2 border-t border-slate-800/80 flex items-center justify-between gap-2 flex-wrap">
+            <div class="mt-3 pt-2 border-t border-zinc-800/80 flex items-center justify-between gap-2 flex-wrap">
               <button 
                 onclick="openRepresentationModal('${msg.id}')" 
-                class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-500/10 text-amber-300 border border-amber-500/30 hover:bg-amber-500/20 hover:border-amber-400 transition text-[11px] font-semibold shadow-sm"
+                class="inline-flex items-center gap-1.5 h-6 px-2.5 rounded border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 text-[11px] font-medium transition shadow-xs"
                 title="Inspeccionar paso a paso cómo se generó esta respuesta"
               >
                 <i data-lucide="git-merge" class="w-3.5 h-3.5 text-amber-400"></i>
                 <span>⚡ Representación</span>
               </button>
-              <span class="text-[10px] text-slate-500 font-mono">
+              <span class="text-[10px] text-zinc-500 font-mono">
                 ${traceBadgeText} • SQLite
               </span>
             </div>
@@ -432,31 +431,31 @@ function appendTypingIndicator() {
   const container = document.getElementById('messages-container');
   const typingDiv = document.createElement('div');
   typingDiv.id = 'typing-indicator-box';
-  typingDiv.className = 'flex items-start gap-3';
+  typingDiv.className = 'max-w-4xl mx-auto flex items-start gap-3 w-full';
   
   const isRag = state.activeBot?.type === 'rag';
   const provider = (state.activeBot?.provider || 'openai').toUpperCase();
   const model = state.activeBot?.model || 'gpt-4o-mini';
 
   typingDiv.innerHTML = `
-    <div class="w-8 h-8 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-base shrink-0 mt-0.5">
+    <div class="w-8 h-8 rounded-lg bg-zinc-900 border border-zinc-800 flex items-center justify-center text-sm shrink-0 shadow-xs mt-0.5">
       ${state.activeBot ? state.activeBot.avatar : '🤖'}
     </div>
-    <div class="w-full max-w-md rounded-2xl rounded-tl-sm bg-slate-900/90 border border-amber-500/30 p-3.5 shadow-xl space-y-2.5">
+    <div class="w-full max-w-md rounded-2xl rounded-tl-xs bg-[#0c0c0e] border border-zinc-800 p-3.5 shadow-md space-y-2.5">
       
       <!-- Cabecera del Indicador en Vivo -->
-      <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+      <div class="flex items-center justify-between border-b border-zinc-800 pb-2">
         <div class="flex items-center gap-2">
           <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
-          <span class="text-xs font-bold text-amber-300">Ejecutando Flujo del Sistema...</span>
+          <span class="text-xs font-semibold text-zinc-200 tracking-tight">Ejecutando Flujo del Sistema...</span>
         </div>
-        <button onclick="openRepresentationModal()" class="text-[10px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 border border-amber-500/30 font-semibold transition">
+        <button onclick="openRepresentationModal()" class="h-6 px-2 rounded border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 text-[10px] font-medium transition">
           ⚡ Representación
         </button>
       </div>
 
       <!-- Pasos visuales en tiempo real -->
-      <div class="space-y-1.5 text-[11px] font-mono text-slate-300">
+      <div class="space-y-1.5 text-[11px] font-mono text-zinc-300">
         <div class="flex items-center gap-2 text-emerald-400">
           <span class="w-4 text-center">✓</span>
           <span>1. Entrada guardada en SQLite (tabla 'messages')</span>
@@ -469,17 +468,17 @@ function appendTypingIndicator() {
           <span class="w-4 text-center">⏳</span>
           <span>${isRag ? '3. OpenAI Embeddings & Similitud Coseno en SQLite...' : '3. Ensamblando contexto directo (Memoria Simple)...'}</span>
         </div>
-        <div class="flex items-center gap-2 text-slate-400">
+        <div class="flex items-center gap-2 text-zinc-400">
           <span class="w-4 text-center">⏳</span>
           <span>4. Enviando prompt a ${provider} (${model})...</span>
         </div>
-        <div class="flex items-center gap-2 text-slate-500">
+        <div class="flex items-center gap-2 text-zinc-500">
           <span class="w-4 text-center">⏳</span>
           <span>5. Esperando tokens devueltos y persistencia final...</span>
         </div>
       </div>
 
-      <div class="pt-1 flex items-center justify-between text-[10px] text-slate-500 border-t border-slate-800/60">
+      <div class="pt-1 flex items-center justify-between text-[10px] text-zinc-500 border-t border-zinc-800/60 font-mono">
         <span>SQLite + ${isRag ? 'OpenAI Embeddings' : 'Historial Simple'}</span>
         <div class="flex gap-1">
           <div class="typing-dot"></div>
