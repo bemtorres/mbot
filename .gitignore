@@ -37,3 +37,12 @@ ehthumbs.db
 # Archivos temporales
 *.tmp
 *.temp
+
+# Skills personales de Codex y su paquete de traslado (no publicar).
+.skill-build/
+.agents/skills/
+.codex/skills/
+/output/skills-presentaciones*.zip
+
+# Fuentes temporales, renders y comprobaciones de las presentaciones.
+.presentation-course/

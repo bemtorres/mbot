@@ -31,6 +31,11 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Servir frontend estático con Tailwind
 const publicPath = path.resolve(__dirname, '../public');
 app.use(express.static(publicPath));
+// La página de presentación también funciona con sus rutas relativas de archivos.
+app.use('/public', express.static(publicPath));
+app.get('/presentacion', (req, res) => {
+  res.sendFile(path.resolve(__dirname, '../index.html'));
+});
 
 // Rutas de API
 app.use('/api/bots', botRoutes);

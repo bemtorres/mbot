@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MBot Studio - Chatbots con Perfil, Memoria RAG SQLite y Servidor MCP</title>
-  <meta name="description" content="Plataforma en Node.js 24 con SQLite nativo para chatbots con identidad, memoria de corto plazo conversacional, memoria RAG con embeddings de OpenAI y servidor oficial MCP.">
+  <meta name="description" content="Plataforma en Node.js 24 con SQLite nativo para chatbots con identidad, memoria de corto plazo conversacional, memoria RAG con embeddings de OpenAI y servidor MCP del proyecto.">
   
   <!-- Favicon -->
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤖</text></svg>">
@@ -16,6 +16,7 @@
 
   <!-- Tailwind CSS Compilado Localmente (vía NPM) -->
   <link rel="stylesheet" href="./public/css/tailwind.css">
+  <link rel="stylesheet" href="./public/css/landing.css">
 
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -83,7 +84,7 @@
         <a href="#caracteristicas" class="hover:text-white transition-colors">Características</a>
         <a href="#arquitectura" class="hover:text-white transition-colors">Arquitectura</a>
         <a href="#personajes" class="hover:text-white transition-colors">Personajes</a>
-        <a href="#mcp" class="hover:text-white transition-colors">Servidor MCP</a>
+        <a href="#presentacion" class="hover:text-white transition-colors">Presentación</a>
         <a href="#codigo" class="hover:text-white transition-colors">Crear por Código</a>
       </nav>
 
@@ -103,67 +104,48 @@
     </div>
   </header>
 
-  <!-- Hero Section -->
-  <section class="relative pt-20 pb-24 lg:pt-32 lg:pb-36 overflow-hidden">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-      
-      <!-- Top Badge -->
-      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-500/10 border border-brand-500/30 text-xs font-semibold text-brand-400 mb-8 animate-fade-in shadow-inner">
-        <span class="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
-        <span>Node.js 24 • SQLite Nativo • OpenAI • DeepSeek • MCP Protocol</span>
+  <!-- Presentación del proyecto -->
+  <section class="landing-hero" aria-labelledby="landing-title">
+    <div>
+      <p class="landing-eyebrow">MBot Studio · Guía del proyecto</p>
+      <h1 id="landing-title">Una identidad propia.<br>Un chat con <span>conocimientos.</span></h1>
+      <p class="landing-intro">Crea personajes, conserva el hilo de la conversación y conecta tus documentos. Descubre cómo se integran OpenAI, el historial en SQLite y la recuperación de conocimiento con RAG.</p>
+      <div class="landing-actions">
+        <a class="landing-button" href="#presentacion">Ver presentación <span aria-hidden="true">↗</span></a>
+        <a class="landing-button secondary" href="#arquitectura">Explorar arquitectura</a>
       </div>
-
-      <!-- Main Headline -->
-      <h1 class="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white max-w-4xl mx-auto leading-tight sm:leading-[1.15]">
-        Chatbots con <span class="bg-gradient-to-r from-brand-400 via-indigo-300 to-cyan-400 bg-clip-text text-transparent">Perfil e Identidad</span>, Memoria RAG y Servidor MCP
-      </h1>
-
-      <!-- Subtitle -->
-      <p class="mt-6 text-lg sm:text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed">
-        Plataforma integral para crear bots únicos con <strong>Memoria de Corto Plazo</strong> (historial en SQLite) y <strong>Memoria de Largo Plazo</strong> (RAG vectorial con embeddings de OpenAI). Totalmente controlable desde <strong>Cursor</strong> o <strong>Claude</strong> mediante protocolo MCP.
-      </p>
-
-      <!-- CTA Buttons -->
-      <div class="mt-10 flex flex-wrap items-center justify-center gap-4">
-        <a href="https://github.com/bemtorres/mbot" target="_blank" rel="noopener noreferrer"
-           class="inline-flex items-center gap-2.5 px-6 py-3.5 rounded-xl bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white font-semibold shadow-lg shadow-brand-500/25 hover:shadow-brand-500/40 transition-all transform hover:-translate-y-0.5">
-          <i data-lucide="github" class="w-5 h-5"></i>
-          <span>Explorar Repositorio</span>
-        </a>
-        <a href="#arquitectura" 
-           class="inline-flex items-center gap-2.5 px-6 py-3.5 rounded-xl bg-surface-card border border-surface-border hover:border-slate-600 text-slate-200 font-semibold hover:bg-surface-muted transition-all">
-          <i data-lucide="layers" class="w-5 h-5 text-brand-400"></i>
-          <span>Cómo Funciona por Dentro</span>
-        </a>
-      </div>
-
-      <!-- Key Metrics Badges -->
-      <div class="mt-14 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-3xl mx-auto text-left">
-        <div class="p-4 rounded-xl bg-surface-card/60 border border-surface-border">
-          <div class="text-2xl font-bold text-white flex items-center gap-2">
-            <span>9</span>
-            <span class="text-xs font-normal text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">Listos</span>
-          </div>
-          <div class="text-xs text-slate-400 mt-1">Personajes Históricos & IA</div>
-        </div>
-
-        <div class="p-4 rounded-xl bg-surface-card/60 border border-surface-border">
-          <div class="text-2xl font-bold text-brand-400">1536</div>
-          <div class="text-xs text-slate-400 mt-1">Dimensiones de Embeddings</div>
-        </div>
-
-        <div class="p-4 rounded-xl bg-surface-card/60 border border-surface-border">
-          <div class="text-2xl font-bold text-cyan-400">14</div>
-          <div class="text-xs text-slate-400 mt-1">Herramientas MCP Oficiales</div>
-        </div>
-
-        <div class="p-4 rounded-xl bg-surface-card/60 border border-surface-border">
-          <div class="text-2xl font-bold text-emerald-400">0ms</div>
-          <div class="text-xs text-slate-400 mt-1">WAL Mode Concurrencia SQLite</div>
-        </div>
-      </div>
-
+      <div class="landing-topics"><span>JavaScript + Node.js</span><span>OpenAI y DeepSeek</span><span>SQLite + RAG</span></div>
     </div>
+    <figure>
+      <a href="#presentacion" aria-label="Ver la presentación: Tu chat con conocimientos">
+        <img src="./public/presentations/mbot/slide-01.png" width="1280" height="720" alt="Portada de la guía de MBot: identidad, memoria y documentos en una aplicación propia" fetchpriority="high">
+      </a>
+      <figcaption>20 diapositivas · diagramas editables · ejemplos de código · ejercicios</figcaption>
+    </figure>
+  </section>
+
+  <section id="presentacion" class="presentation-section" aria-labelledby="presentation-title">
+    <div class="presentation-heading">
+      <div>
+        <p class="landing-eyebrow">Del concepto a tu aplicación</p>
+        <h2 id="presentation-title">Así funciona un chat con conocimientos</h2>
+        <p>Recorre la guía sin salir de esta página: modelos, roles de los mensajes, memoria, embeddings y RAG. Incluye dos ejercicios y sus soluciones en las notas del PowerPoint.</p>
+      </div>
+      <a class="landing-button secondary" href="./public/presentations/mbot/MBot-chat-con-conocimientos.pptx" download>Descargar PPTX <span aria-hidden="true">↓</span></a>
+    </div>
+    <div id="presentation-viewer" class="presentation-viewer" role="region" aria-label="Visor de la presentación de MBot" tabindex="0" data-slides="./public/presentations/mbot">
+      <div class="presentation-canvas"><img width="1280" height="720" alt="Presentación de MBot" decoding="async"></div>
+      <div class="presentation-controls">
+        <button type="button" data-previous aria-label="Diapositiva anterior">← Anterior</button>
+        <select aria-label="Seleccionar diapositiva"></select>
+        <button type="button" data-next aria-label="Diapositiva siguiente">Siguiente →</button>
+        <button type="button" data-fullscreen>Pantalla completa</button>
+        <button type="button" data-retry hidden>Reintentar</button>
+      </div>
+      <p class="presentation-status" role="status" aria-live="polite"></p>
+    </div>
+    <p class="presentation-hint">Usa los botones o el selector para avanzar. Con el visor enfocado, también puedes usar las flechas del teclado. Descarga el PPTX para editarlo y consultar las notas.</p>
+    <noscript><p>Activa JavaScript para recorrer las diapositivas o utiliza el enlace de descarga del PowerPoint.</p></noscript>
   </section>
 
   <!-- Interactive Demo Preview Section -->
@@ -175,7 +157,7 @@
           <span class="w-3 h-3 rounded-full bg-red-500/80"></span>
           <span class="w-3 h-3 rounded-full bg-yellow-500/80"></span>
           <span class="w-3 h-3 rounded-full bg-emerald-500/80"></span>
-          <span class="text-xs text-slate-400 font-mono ml-2">mbot-studio // vista-interactiva</span>
+          <span class="text-xs text-slate-400 font-mono ml-2">Ejemplo ilustrativo · respuestas de demostración</span>
         </div>
         
         <!-- Live Selector Tabs -->
@@ -322,7 +304,7 @@
         <div class="w-12 h-12 rounded-xl bg-pink-500/10 border border-pink-500/20 text-pink-400 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
           <i data-lucide="cable" class="w-6 h-6"></i>
         </div>
-        <h3 class="text-lg font-bold text-white mb-2">Servidor MCP Oficial</h3>
+        <h3 class="text-lg font-bold text-white mb-2">Servidor MCP del proyecto</h3>
         <p class="text-sm text-slate-400 leading-relaxed">
           14 herramientas estandarizadas para que agentes como Cursor, Claude Desktop o Antigravity puedan crear bots, indexar libros y chatear autónomamente.
         </p>
@@ -577,7 +559,7 @@
         Model Context Protocol
       </div>
       <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-        Servidor MCP Oficial: Crea de Todo
+        Servidor MCP del proyecto: Crea de Todo
       </h2>
       <p class="mt-4 text-slate-400 text-sm">
         Permite a agentes de IA como <strong>Cursor</strong>, <strong>Claude Desktop</strong> o <strong>Antigravity</strong> controlar el sistema mediante 14 herramientas estandarizadas.
@@ -751,7 +733,7 @@ const bot = BotService.createBot({
   <!-- Interactive Demo Script -->
   <script>
     // Initialize Lucide icons
-    lucide.createIcons();
+    if (window.lucide) lucide.createIcons();
 
     // Data for interactive hero preview
     const botData = {
@@ -835,7 +817,7 @@ const bot = BotService.createBot({
       document.getElementById('demo-trace-provider').textContent = data.provider;
       document.getElementById('demo-trace-tokens').textContent = data.tokens;
 
-      lucide.createIcons();
+      if (window.lucide) lucide.createIcons();
     }
 
     // Lógica Light / Dark Mode para la Landing Page
@@ -865,5 +847,6 @@ const bot = BotService.createBot({
 
     initLandingTheme();
   </script>
+  <script src="./public/js/presentation-viewer.js"></script>
 </body>
 </html>

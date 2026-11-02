@@ -32,7 +32,8 @@ El sistema integra dos arquitecturas de memoria (**Memoria de Corto Plazo** y **
 ## 📖 Guías Rápidas y Documentación
 
 - 🛠️ **[Guía: Cómo Crear Personajes y Bots por Código (Paso a Paso)](file:///c:/Users/benja/Desktop/mbot/CREAR_PERSONAJES_POR_CODIGO.md)**: Guía práctica con ejemplos en CLI interactivo, argumentos de consola, Node.js nativo, API REST (`curl`, `fetch`, Python) y MCP.
-- 🏛️ **[Documentación Oficial: Arquitectura Interna de Prompts y Memoria (OpenAI & DeepSeek)](file:///c:/Users/benja/Desktop/mbot/DOCUMENTACION_INTERNA_MEMORIA_Y_PROMPTS.md)**: Manual técnico con diagramas Mermaid, descomposición del ciclo de vida, tokens, cálculo de similitud de coseno y fórmulas.
+- 🏛️ **[Documentación Oficial: Arquitectura Interna de Prompts y Memoria (OpenAI & DeepSeek)](file:///c:/Users/benja/Desktop/mbot/DOCUMENTACION_INTERNA_MEMORIA_Y_PROMPTS.md)**: Manual técnico con diagramas Mermaid, ciclo de vida en MBot Studio, tokens y cálculo de similitud de coseno en SQLite.
+- 🧠 **[Guía Técnica Universal: Prompts, Memoria y APIs Directas (OpenAI & DeepSeek)](file:///c:/Users/benja/Desktop/mbot/DOCUMENTACION_LLM_OPENAI_DEEPSEEK.md)**: Explicación directa e independiente de cualquier software con ejemplos funcionales en cURL, JavaScript (SDK OpenAI) y Python (SDK OpenAI).
 - ⚙️ **[Configuración MCP para Cursor](file:///c:/Users/benja/Desktop/mbot/.cursor/mcp.json)** / **[Configuración MCP Genérica](file:///c:/Users/benja/Desktop/mbot/mcp_config.json)**: Archivos listos para conectar cualquier asistente LLM.
 
 ---
@@ -60,7 +61,7 @@ MBot Studio incluye 9 personajes con personalidades, estilos de lenguaje y arqui
 | 🤖 | **Alex** | Asistente General | 📝 Simple | OpenAI (`gpt-4o-mini`) | Pragmático, estructurado, respuestas directas en markdown. |
 | 🧠 | **Sophia** | Especialista en IA & RAG | 🧠 RAG | OpenAI (`gpt-4o-mini`) | Científica de datos; cita fragmentos vectoriales con rigor técnico. |
 | 🌹 | **El Principito** | Filósofo Poético | 📝 Simple | OpenAI (`gpt-4o-mini`) | Poético, inocente, cuestiona lo obvio; recuerda su rosa y su zorro. |
-| 🧢 | **El Brayan** | Chileno de Barrio / Flaite | 📝 Simple | DeepSeek (`deepseek-chat`) | Jerga popular chilena (coa), carismático, leal a sus panas, humor callejero. |
+| 🧢 | **El Brayan** | Chileno de Pobla / Flaite | 📝 Simple | DeepSeek (`deepseek-chat`) | Jerga flaite chilena pura, escribe con ortografía de chat de barrio (*"wena waxo kl"*, *"k pazaaaa"*, *"al toke perro"*), leal y de buen corazón. |
 | 🇨🇱 | **Bernardo O'Higgins** | Padre de la Patria | 🧠 RAG | DeepSeek (`deepseek-chat`) | Militar ilustrado, republicano, honor de la Independencia chilena. |
 | ⚓ | **Arturo Prat Chacón** | Héroe Naval de Iquique | 🧠 RAG | OpenAI (`gpt-4o-mini`) | Capitán patriota, valiente, espíritu cívico y de sacrificio nacional. |
 | 📜 | **Gabriela Mistral** | Poetisa y Premio Nobel | 📝 Simple | DeepSeek (`deepseek-chat`) | Lírica andina, pedagoga, amorosa defensora de la infancia y la tierra. |
@@ -417,31 +418,68 @@ mbot/
 
 ## ⚙️ Instalación y Puesta en Marcha
 
-### 1. Clonar o acceder al proyecto
+### ⚡ Opción Rápida (Windows): Un Solo Clic con `instalar.bat`
+
+El proyecto incluye el instalador automático [instalar.bat](file:///c:/Users/benja/Desktop/mbot/instalar.bat) que:
+1. Detecta automáticamente Node.js (incluso si está instalado a través de Laragon).
+2. Genera el archivo `.env` inicial si aún no existe.
+3. Instala todas las dependencias (`npm install`).
+4. Compila Tailwind CSS v4 localmente (`npm run build:css`).
+5. Pregunta si deseas abrir el navegador e iniciar el servidor en `http://localhost:3000`.
+
+**Para usarlo:**
+- Haz doble clic sobre [instalar.bat](file:///c:/Users/benja/Desktop/mbot/instalar.bat), o
+- Ejecútalo en la consola de Windows:
+  ```cmd
+  .\instalar.bat
+  ```
+
+---
+
+### 🛠️ Opción Manual (Paso a Paso)
+
+#### 1. Acceder al directorio
 ```bash
 cd c:\Users\benja\Desktop\mbot
 ```
 
-### 2. Instalar dependencias
+#### 2. Instalar dependencias
 ```bash
 npm install
 ```
 
-### 3. Configurar API Keys
-Puedes definir tus claves en el archivo `.env`:
+#### 3. Configurar variables de entorno
+Copia `.env.example` a `.env` y coloca tus claves API:
 ```env
 PORT=3000
 OPENAI_API_KEY=tu_clave_de_openai
 DEEPSEEK_API_KEY=tu_clave_de_deepseek
 ```
-*También puedes configurarlas de manera visual directamente en la interfaz web haciendo clic en **⚙️ Ajustes API** o usando la herramienta MCP `set_api_keys`.*
+*También puedes configurarlas de manera visual directamente en la interfaz web haciendo clic en **⚙️ Ajustes** o usando la herramienta MCP `set_api_keys`.*
 
-### 4. Scripts Disponibles en `package.json`
+#### 4. Compilar Tailwind CSS
+```bash
+npm run build:css
+```
+
+#### 5. Iniciar la aplicación
+```bash
+npm start
+# O en modo desarrollo con recarga en vivo:
+npm run dev
+```
+Abre tu navegador en `http://localhost:3000`.
+
+---
+
+### 📜 Scripts Disponibles en `package.json`
 
 | Comando | Acción |
 |---|---|
-| `npm run dev` | Inicia el servidor web con recarga automática en `http://localhost:3000` |
-| `npm start` | Inicia el servidor web en modo producción |
+| `npm start` | Inicia el servidor web en producción (`http://localhost:3000`) |
+| `npm run dev` | Inicia el servidor con recarga automática mediante `--watch` |
+| `npm run build:css` | Compila y minifica Tailwind CSS v4 a `public/css/tailwind.css` |
+| `npm run watch:css` | Compila Tailwind CSS automáticamente al detectar cambios |
 | `npm run mcp` | Inicia el servidor MCP sobre STDIO para Cursor / Claude / Antigravity |
 | `node scripts/test-mcp.js` | Ejecuta la suite de pruebas de todas las herramientas MCP |
 | `node scripts/create-bot.js` | Abre el creador de bots interactivo por consola |

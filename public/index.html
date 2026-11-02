@@ -431,7 +431,7 @@
             <p class="text-xs text-zinc-400">Personaliza la personalidad, tono, memoria y motor de IA</p>
           </div>
         </div>
-        <button onclick="closeBotProfileModal()" class="h-8 w-8 rounded-md text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 flex items-center justify-center">
+        <button aria-label="Cerrar formulario de identidad" onclick="closeBotProfileModal()" class="h-8 w-8 rounded-md text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800 flex items-center justify-center">
           <i data-lucide="x" class="w-4 h-4"></i>
         </button>
       </div>
@@ -439,52 +439,35 @@
       <form id="bot-profile-form" onsubmit="handleSaveBotProfile(event)" class="overflow-y-auto py-4 space-y-4 pr-1 flex-1 text-xs">
         <input type="hidden" id="bot-form-id" value="">
 
-        <div class="grid grid-cols-1 sm:grid-cols-4 gap-3">
-          <div class="sm:col-span-1">
-            <label class="block font-medium text-zinc-300 mb-1" for="bot-form-avatar">Avatar</label>
-            <div id="bot-form-avatar-preview" class="avatar-form-preview" aria-label="Vista previa del avatar"></div>
-            <label class="avatar-upload-label" for="bot-form-image">Elegir imagen</label>
-            <input id="bot-form-image" class="avatar-file-input" type="file" accept="image/png,image/jpeg,image/webp" onchange="handleAvatarImage(this)">
-            <p class="avatar-image-hint">JPG, PNG o WebP · máximo 10 MB. Se recorta al centro y guarda en WebP.</p>
-            <p id="bot-form-image-error" role="alert"></p>
-            <div class="flex items-center gap-1.5">
-              <input 
-                id="bot-form-avatar" oninput="resetSelectedAvatar()" 
-                type="text" 
-                maxlength="2048"
-                placeholder="Emoji o /images/bots/alex.webp" 
-                value="🤖" 
-                class="w-full min-w-0 text-center bg-zinc-900 border border-zinc-800 rounded-md py-1.5 text-lg focus:outline-none focus:border-zinc-500"
-              />
-              <div class="flex flex-wrap gap-1">
-                <button type="button" onclick="setFormAvatar('🤖')" class="p-1 hover:bg-zinc-800 rounded">🤖</button>
-                <button type="button" onclick="setFormAvatar('🧠')" class="p-1 hover:bg-zinc-800 rounded">🧠</button>
-                <button type="button" onclick="setFormAvatar('💼')" class="p-1 hover:bg-zinc-800 rounded">💼</button>
-                <button type="button" onclick="setFormAvatar('⚡')" class="p-1 hover:bg-zinc-800 rounded">⚡</button>
+        <section class="profile-avatar-section" aria-label="Imagen del bot">
+          <div id="bot-form-avatar-preview" class="avatar-form-preview" aria-label="Vista previa del avatar"></div>
+          <div class="profile-avatar-controls">
+            <span class="profile-field-label">Imagen del bot</span>
+            <div class="profile-avatar-options">
+              <label class="avatar-upload-label" for="bot-form-image">Elegir imagen</label>
+              <input id="bot-form-image" class="avatar-file-input" type="file" accept="image/png,image/jpeg,image/webp" onchange="handleAvatarImage(this)">
+              <input id="bot-form-avatar" type="hidden" value="🤖">
+              <div class="profile-emoji-options" role="group" aria-label="Usar un icono como avatar">
+                <button type="button" onclick="setFormAvatar('🤖')" aria-label="Avatar robot">🤖</button>
+                <button type="button" onclick="setFormAvatar('🧠')" aria-label="Avatar cerebro">🧠</button>
+                <button type="button" onclick="setFormAvatar('💼')" aria-label="Avatar maletín">💼</button>
+                <button type="button" onclick="setFormAvatar('⚡')" aria-label="Avatar rayo">⚡</button>
               </div>
             </div>
+            <p class="avatar-image-hint">JPG, PNG o WebP, hasta 10 MB. La imagen se recorta al centro.</p>
+            <p id="bot-form-image-error" role="alert"></p>
           </div>
+        </section>
 
-          <div class="sm:col-span-3">
-            <label class="block font-medium text-zinc-300 mb-1">Nombre del Bot</label>
-            <input 
-              id="bot-form-name" 
-              type="text" 
-              required 
-              placeholder="Ej: Alex, Sophia, Nexus..." 
-              class="w-full bg-zinc-900 border border-zinc-800 rounded-md px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-zinc-500"
-            />
+        <div class="profile-name-fields">
+          <div>
+            <label class="profile-field-label" for="bot-form-name">Nombre del bot</label>
+            <input id="bot-form-name" type="text" required placeholder="Ej: Félix, Sophia…" class="profile-text-input">
           </div>
-        </div>
-
-        <div>
-          <label class="block font-medium text-zinc-300 mb-1">Rol / Especialidad</label>
-          <input 
-            id="bot-form-role" 
-            type="text" 
-            placeholder="Ej: Asistente de Soporte, Mentor de Programación..." 
-            class="w-full bg-zinc-900 border border-zinc-800 rounded-md px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-zinc-500"
-          />
+          <div>
+            <label class="profile-field-label" for="bot-form-role">Rol / Especialidad</label>
+            <input id="bot-form-role" type="text" placeholder="Ej: Asistente, mentor, personaje…" class="profile-text-input">
+          </div>
         </div>
 
         <div>
@@ -512,7 +495,7 @@
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
-            <label class="block font-medium text-zinc-300 mb-1">Proveedor de Chat LLM</label>
+            <label class="block font-medium text-zinc-300 mb-1" for="bot-form-provider">Proveedor de Chat LLM</label>
             <select 
               id="bot-form-provider" 
               onchange="handleProviderChange()"
@@ -524,7 +507,7 @@
           </div>
 
           <div>
-            <label class="block font-medium text-zinc-300 mb-1">Modelo de Lenguaje</label>
+            <label class="block font-medium text-zinc-300 mb-1" for="bot-form-model">Modelo de Lenguaje</label>
             <select 
               id="bot-form-model" 
               class="w-full bg-zinc-900 border border-zinc-800 rounded-md px-3 py-2 text-sm text-zinc-100 focus:outline-none focus:border-zinc-500 font-mono text-xs"
@@ -553,7 +536,7 @@
         </div>
 
         <div>
-          <label class="block font-medium text-zinc-300 mb-1 flex items-center justify-between">
+          <label for="bot-form-prompt" class="profile-prompt-label block font-medium text-zinc-300 mb-1 flex items-center justify-between">
             <span>Instrucciones de Identidad (System Prompt)</span>
             <span class="text-zinc-500 text-[11px]">Define el comportamiento y rol del bot</span>
           </label>
@@ -567,7 +550,7 @@
 
       </form>
 
-      <div class="flex items-center justify-between pt-3 border-t border-zinc-800 shrink-0">
+      <div class="profile-form-footer flex items-center justify-between pt-3 border-t border-zinc-800 shrink-0">
         <button 
           id="btn-delete-bot" 
           type="button" 
