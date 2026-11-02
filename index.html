@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="es" class="dark scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MBot Studio - Chatbots con Perfil, Memoria RAG SQLite y Servidor MCP</title>
+  <meta name="description" content="Plataforma en Node.js 24 con SQLite nativo para chatbots con identidad, memoria de corto plazo conversacional, memoria RAG con embeddings de OpenAI y servidor oficial MCP.">
+  
+  <!-- Favicon -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🤖</text></svg>">
+
+  <!-- Google Fonts: Plus Jakarta Sans & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            brand: {
+              50: '#f5f3ff',
+              100: '#ede9fe',
+              400: '#a78bfa',
+              500: '#8b5cf6',
+              600: '#7c3aed',
+              700: '#6d28d9',
+            },
+            surface: {
+              DEFAULT: '#090a0f',
+              card: '#11131c',
+              border: '#1f2438',
+              muted: '#181b28',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <style>
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #090a0f;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1f2438;
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #7c3aed;
+    }
+
+    /* Gradient Background Glow */
+    .glow-purple {
+      background: radial-gradient(circle at 50% 50%, rgba(124, 58, 237, 0.15), transparent 70%);
+    }
+    .glow-cyan {
+      background: radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.12), transparent 70%);
+    }
+
+    /* Glass Effect */
+    .glass {
+      background: rgba(17, 19, 28, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+  </style>
+</head>
+
+<body class="bg-[#090a0f] text-slate-100 font-sans antialiased selection:bg-brand-500 selection:text-white min-h-screen relative overflow-x-hidden">
+
+  <!-- Ambient Glow Backgrounds -->
+  <div class="fixed top-0 left-1/4 w-[700px] h-[500px] glow-purple pointer-events-none -z-10 blur-3xl"></div>
+  <div class="fixed top-1/3 right-10 w-[600px] h-[500px] glow-cyan pointer-events-none -z-10 blur-3xl"></div>
+
+  <!-- Navbar -->
+  <header class="sticky top-0 z-50 glass border-b border-surface-border/80">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <a href="#" class="flex items-center gap-3 group">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-cyan-500 flex items-center justify-center text-xl shadow-lg shadow-brand-500/20 group-hover:scale-105 transition-transform">
+          🤖
+        </div>
+        <div>
+          <span class="text-lg font-bold tracking-tight bg-gradient-to-r from-white via-slate-200 to-brand-400 bg-clip-text text-transparent">
+            MBot Studio
+          </span>
+          <span class="hidden sm:inline-block text-xs text-brand-400 font-mono px-2 py-0.5 ml-2 rounded-full bg-brand-500/10 border border-brand-500/20">
+            v1.0.0
+          </span>
+        </div>
+      </a>
+
+      <!-- Navigation Links -->
+      <nav class="hidden md:flex items-center gap-7 text-sm font-medium text-slate-300">
+        <a href="#caracteristicas" class="hover:text-white transition-colors">Características</a>
+        <a href="#arquitectura" class="hover:text-white transition-colors">Arquitectura</a>
+        <a href="#personajes" class="hover:text-white transition-colors">Personajes</a>
+        <a href="#mcp" class="hover:text-white transition-colors">Servidor MCP</a>
+        <a href="#codigo" class="hover:text-white transition-colors">Crear por Código</a>
+      </nav>
+
+      <!-- Action Button -->
+      <div class="flex items-center gap-3">
+        <a href="https://github.com/bemtorres/mbot" target="_blank" rel="noopener noreferrer" 
+           class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-surface-muted border border-surface-border hover:border-brand-500/50 hover:bg-surface-card text-sm font-semibold text-slate-200 transition-all shadow-sm">
+          <i data-lucide="github" class="w-4 h-4"></i>
+          <span>GitHub</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="relative pt-20 pb-24 lg:pt-32 lg:pb-36 overflow-hidden">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+      
+      <!-- Top Badge -->
+      <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-500/10 border border-brand-500/30 text-xs font-semibold text-brand-400 mb-8 animate-fade-in shadow-inner">
+        <span class="w-2 h-2 rounded-full bg-brand-400 animate-pulse"></span>
+        <span>Node.js 24 • SQLite Nativo • OpenAI • DeepSeek • MCP Protocol</span>
+      </div>
+
+      <!-- Main Headline -->
+      <h1 class="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white max-w-4xl mx-auto leading-tight sm:leading-[1.15]">
+        Chatbots con <span class="bg-gradient-to-r from-brand-400 via-indigo-300 to-cyan-400 bg-clip-text text-transparent">Perfil e Identidad</span>, Memoria RAG y Servidor MCP
+      </h1>
+
+      <!-- Subtitle -->
+      <p class="mt-6 text-lg sm:text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed">
+        Plataforma integral para crear bots únicos con <strong>Memoria de Corto Plazo</strong> (historial en SQLite) y <strong>Memoria de Largo Plazo</strong> (RAG vectorial con embeddings de OpenAI). Totalmente controlable desde <strong>Cursor</strong> o <strong>Claude</strong> mediante protocolo MCP.
+      </p>
+
+      <!-- CTA Buttons -->
+      <div class="mt-10 flex flex-wrap items-center justify-center gap-4">
+        <a href="https://github.com/bemtorres/mbot" target="_blank" rel="noopener noreferrer"
+           class="inline-flex items-center gap-2.5 px-6 py-3.5 rounded-xl bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white font-semibold shadow-lg shadow-brand-500/25 hover:shadow-brand-500/40 transition-all transform hover:-translate-y-0.5">
+          <i data-lucide="github" class="w-5 h-5"></i>
+          <span>Explorar Repositorio</span>
+        </a>
+        <a href="#arquitectura" 
+           class="inline-flex items-center gap-2.5 px-6 py-3.5 rounded-xl bg-surface-card border border-surface-border hover:border-slate-600 text-slate-200 font-semibold hover:bg-surface-muted transition-all">
+          <i data-lucide="layers" class="w-5 h-5 text-brand-400"></i>
+          <span>Cómo Funciona por Dentro</span>
+        </a>
+      </div>
+
+      <!-- Key Metrics Badges -->
+      <div class="mt-14 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-3xl mx-auto text-left">
+        <div class="p-4 rounded-xl bg-surface-card/60 border border-surface-border">
+          <div class="text-2xl font-bold text-white flex items-center gap-2">
+            <span>9</span>
+            <span class="text-xs font-normal text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">Listos</span>
+          </div>
+          <div class="text-xs text-slate-400 mt-1">Personajes Históricos & IA</div>
+        </div>
+
+        <div class="p-4 rounded-xl bg-surface-card/60 border border-surface-border">
+          <div class="text-2xl font-bold text-brand-400">1536</div>
+          <div class="text-xs text-slate-400 mt-1">Dimensiones de Embeddings</div>
+        </div>
+
+        <div class="p-4 rounded-xl bg-surface-card/60 border border-surface-border">
+          <div class="text-2xl font-bold text-cyan-400">14</div>
+          <div class="text-xs text-slate-400 mt-1">Herramientas MCP Oficiales</div>
+        </div>
+
+        <div class="p-4 rounded-xl bg-surface-card/60 border border-surface-border">
+          <div class="text-2xl font-bold text-emerald-400">0ms</div>
+          <div class="text-xs text-slate-400 mt-1">WAL Mode Concurrencia SQLite</div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Interactive Demo Preview Section -->
+  <section class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 mb-28">
+    <div class="glass rounded-2xl border border-surface-border overflow-hidden shadow-2xl">
+      <!-- Window Title Bar -->
+      <div class="bg-surface-card px-5 py-3.5 border-b border-surface-border flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="w-3 h-3 rounded-full bg-red-500/80"></span>
+          <span class="w-3 h-3 rounded-full bg-yellow-500/80"></span>
+          <span class="w-3 h-3 rounded-full bg-emerald-500/80"></span>
+          <span class="text-xs text-slate-400 font-mono ml-2">mbot-studio // vista-interactiva</span>
+        </div>
+        
+        <!-- Live Selector Tabs -->
+        <div class="flex items-center gap-2">
+          <button onclick="switchHeroBot('alex')" id="tab-alex" class="demo-tab px-3 py-1 text-xs rounded-md font-medium transition-all bg-brand-600 text-white">
+            🤖 Alex
+          </button>
+          <button onclick="switchHeroBot('sophia')" id="tab-sophia" class="demo-tab px-3 py-1 text-xs rounded-md font-medium transition-all bg-surface-muted text-slate-400 hover:text-white">
+            🧠 Sophia (RAG)
+          </button>
+          <button onclick="switchHeroBot('brayan')" id="tab-brayan" class="demo-tab px-3 py-1 text-xs rounded-md font-medium transition-all bg-surface-muted text-slate-400 hover:text-white">
+            🧢 El Brayan
+          </button>
+          <button onclick="switchHeroBot('socrates')" id="tab-socrates" class="demo-tab px-3 py-1 text-xs rounded-md font-medium transition-all bg-surface-muted text-slate-400 hover:text-white">
+            🏛️ Sócrates
+          </button>
+        </div>
+      </div>
+
+      <!-- Demo Body -->
+      <div class="p-6 sm:p-8 bg-surface/90 space-y-5">
+        <!-- User Message -->
+        <div class="flex items-start gap-3 justify-end">
+          <div class="bg-brand-600 text-white rounded-2xl rounded-tr-sm px-4 py-3 max-w-lg text-sm shadow-md">
+            <p id="demo-user-query">¿Quién eres y cómo funciona tu memoria en este sistema?</p>
+          </div>
+          <div class="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-xs font-bold">Tú</div>
+        </div>
+
+        <!-- Assistant Message -->
+        <div class="flex items-start gap-3">
+          <div id="demo-avatar" class="w-8 h-8 rounded-xl bg-brand-500/20 border border-brand-500/30 flex items-center justify-center text-base">
+            🤖
+          </div>
+          <div class="bg-surface-card border border-surface-border text-slate-200 rounded-2xl rounded-tl-sm p-4 max-w-2xl text-sm space-y-3">
+            <div class="flex items-center justify-between border-b border-surface-border/60 pb-2">
+              <span id="demo-bot-name" class="font-semibold text-white">Alex • Asistente General</span>
+              <span id="demo-badge" class="text-[11px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                MEMORIA SIMPLE (SQLite)
+              </span>
+            </div>
+            <p id="demo-bot-response" class="leading-relaxed">
+              ¡Hola! Soy <strong>Alex</strong>. Mi memoria es de tipo <strong>Historial de Texto Simple</strong>. Cada mensaje que intercambiamos se almacena en SQLite en la tabla <code>messages</code> y el servidor mantiene una ventana contextual de nuestros últimos turnos de diálogo para responderte con coherencia inmediata sin requerir embeddings vectoriales.
+            </p>
+
+            <!-- RAG Accordion simulation -->
+            <div id="demo-rag-box" class="hidden rounded-lg bg-surface-muted p-3 border border-surface-border/70 text-xs space-y-1.5 font-mono">
+              <div class="flex items-center justify-between text-brand-400 font-semibold">
+                <span class="flex items-center gap-1.5"><i data-lucide="database" class="w-3.5 h-3.5"></i> 2 Fragmentos RAG Utilizados</span>
+                <span class="text-cyan-400">Similitud: 92.4%</span>
+              </div>
+              <p class="text-slate-400 font-sans">
+                [Fragmento #1 de "Arquitectura Transformers"]: La auto-atención calcula productos punto escalados entre vectores Query y Key...
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Trace Bar Pill -->
+        <div class="flex items-center justify-between p-3 rounded-xl bg-surface-card/50 border border-surface-border text-xs text-slate-400">
+          <div class="flex items-center gap-3">
+            <span class="flex items-center gap-1.5 text-emerald-400"><i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Pipeline Completado</span>
+            <span>•</span>
+            <span id="demo-trace-provider">Proveedor: OpenAI (gpt-4o-mini)</span>
+            <span>•</span>
+            <span id="demo-trace-tokens">Tokens: 412 total</span>
+          </div>
+          <div class="font-mono text-slate-300 flex items-center gap-1.5">
+            <i data-lucide="clock" class="w-3.5 h-3.5 text-brand-400"></i> 680ms
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 1: Características Principales -->
+  <section id="caracteristicas" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 border-t border-surface-border/60">
+    <div class="text-center max-w-3xl mx-auto mb-16">
+      <h2 class="text-xs font-mono uppercase tracking-widest text-brand-400 font-semibold">Tecnología de Vanguardia</h2>
+      <p class="mt-2 text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+        Todo lo que necesitas para chatbots de nivel producción
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      
+      <!-- Card 1 -->
+      <div class="p-6 rounded-2xl bg-surface-card border border-surface-border hover:border-brand-500/40 transition-all group">
+        <div class="w-12 h-12 rounded-xl bg-brand-500/10 border border-brand-500/20 text-brand-400 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+          <i data-lucide="user-check" class="w-6 h-6"></i>
+        </div>
+        <h3 class="text-lg font-bold text-white mb-2">Identidad y System Prompts</h3>
+        <p class="text-sm text-slate-400 leading-relaxed">
+          Cada personaje posee su propio avatar, tono, época, restricciones y temperatura. Desde filósofos de la antigüedad hasta asistentes técnicos modernos.
+        </p>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="p-6 rounded-2xl bg-surface-card border border-surface-border hover:border-cyan-500/40 transition-all group">
+        <div class="w-12 h-12 rounded-xl bg-cyan-500/10 border border-cyan-500/20 text-cyan-400 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+          <i data-lucide="brain" class="w-6 h-6"></i>
+        </div>
+        <h3 class="text-lg font-bold text-white mb-2">Memoria RAG Vectorial</h3>
+        <p class="text-sm text-slate-400 leading-relaxed">
+          Fragmentación inteligente (450 chars + 70 overlap) e indexación con embeddings de OpenAI (1536 dimensiones) con búsqueda por similitud de coseno en SQLite.
+        </p>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="p-6 rounded-2xl bg-surface-card border border-surface-border hover:border-purple-500/40 transition-all group">
+        <div class="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+          <i data-lucide="cpu" class="w-6 h-6"></i>
+        </div>
+        <h3 class="text-lg font-bold text-white mb-2">OpenAI & DeepSeek</h3>
+        <p class="text-sm text-slate-400 leading-relaxed">
+          Soporte sin fisuras para GPT-4o, GPT-4o-mini y DeepSeek (V3 y R1 Reasoner). Configura y alterna modelos por personaje o globalmente.
+        </p>
+      </div>
+
+      <!-- Card 4 -->
+      <div class="p-6 rounded-2xl bg-surface-card border border-surface-border hover:border-emerald-500/40 transition-all group">
+        <div class="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+          <i data-lucide="database" class="w-6 h-6"></i>
+        </div>
+        <h3 class="text-lg font-bold text-white mb-2">SQLite Nativo (Node 24)</h3>
+        <p class="text-sm text-slate-400 leading-relaxed">
+          Utiliza <code>node:sqlite DatabaseSync</code> en modo WAL con claves foráneas en cascada. Rendimiento ultrarrápido sin requerir servicios externos pesados.
+        </p>
+      </div>
+
+      <!-- Card 5 -->
+      <div class="p-6 rounded-2xl bg-surface-card border border-surface-border hover:border-indigo-500/40 transition-all group">
+        <div class="w-12 h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+          <i data-lucide="activity" class="w-6 h-6"></i>
+        </div>
+        <h3 class="text-lg font-bold text-white mb-2">Traza de Representación</h3>
+        <p class="text-sm text-slate-400 leading-relaxed">
+          Modal visual paso a paso que desglosa la latencia de red, el consumo de tokens y las fuentes RAG exactas utilizadas en cada respuesta.
+        </p>
+      </div>
+
+      <!-- Card 6 -->
+      <div class="p-6 rounded-2xl bg-surface-card border border-surface-border hover:border-pink-500/40 transition-all group">
+        <div class="w-12 h-12 rounded-xl bg-pink-500/10 border border-pink-500/20 text-pink-400 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+          <i data-lucide="cable" class="w-6 h-6"></i>
+        </div>
+        <h3 class="text-lg font-bold text-white mb-2">Servidor MCP Oficial</h3>
+        <p class="text-sm text-slate-400 leading-relaxed">
+          14 herramientas estandarizadas para que agentes como Cursor, Claude Desktop o Antigravity puedan crear bots, indexar libros y chatear autónomamente.
+        </p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Section 2: Arquitectura Interna -->
+  <section id="arquitectura" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 border-t border-surface-border/60">
+    <div class="text-center max-w-3xl mx-auto mb-16">
+      <h2 class="text-xs font-mono uppercase tracking-widest text-brand-400 font-semibold">Mecánica Interna</h2>
+      <p class="mt-2 text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+        ¿Cómo funciona por dentro con ChatGPT o DeepSeek?
+      </p>
+      <p class="mt-4 text-slate-400 text-sm">
+        Los LLMs son <strong>stateless (sin estado)</strong>. Cada llamada HTTP es independiente. MBot reconstruye el contexto completo en 6 etapas precisas:
+      </p>
+    </div>
+
+    <!-- 6 Steps Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      
+      <div class="p-5 rounded-xl bg-surface-card border border-surface-border relative">
+        <div class="text-xs font-mono text-brand-400 font-bold mb-1">PASO 01</div>
+        <h4 class="font-semibold text-white mb-1.5 flex items-center gap-2">
+          <i data-lucide="message-square" class="w-4 h-4 text-brand-400"></i> Entrada en SQLite
+        </h4>
+        <p class="text-xs text-slate-400 leading-relaxed">
+          El mensaje del usuario se inserta de inmediato en la tabla <code>messages</code> de SQLite con su <code>conversation_id</code>.
+        </p>
+      </div>
+
+      <div class="p-5 rounded-xl bg-surface-card border border-surface-border relative">
+        <div class="text-xs font-mono text-cyan-400 font-bold mb-1">PASO 02</div>
+        <h4 class="font-semibold text-white mb-1.5 flex items-center gap-2">
+          <i data-lucide="database" class="w-4 h-4 text-cyan-400"></i> Memoria Corto Plazo
+        </h4>
+        <p class="text-xs text-slate-400 leading-relaxed">
+          Se recupera una ventana deslizante de los últimos 16 mensajes para garantizar la coherencia temática sin exceder la ventana de tokens.
+        </p>
+      </div>
+
+      <div class="p-5 rounded-xl bg-surface-card border border-surface-border relative">
+        <div class="text-xs font-mono text-indigo-400 font-bold mb-1">PASO 03</div>
+        <h4 class="font-semibold text-white mb-1.5 flex items-center gap-2">
+          <i data-lucide="brain" class="w-4 h-4 text-indigo-400"></i> Memoria Largo Plazo (RAG)
+        </h4>
+        <p class="text-xs text-slate-400 leading-relaxed">
+          Si es bot RAG, se vectoriza la consulta con OpenAI (1536 dims) y se calculan similitudes de coseno en SQLite recuperando los mejores fragmentos.
+        </p>
+      </div>
+
+      <div class="p-5 rounded-xl bg-surface-card border border-surface-border relative">
+        <div class="text-xs font-mono text-purple-400 font-bold mb-1">PASO 04</div>
+        <h4 class="font-semibold text-white mb-1.5 flex items-center gap-2">
+          <i data-lucide="layers" class="w-4 h-4 text-purple-400"></i> Ensamblado del Payload
+        </h4>
+        <p class="text-xs text-slate-400 leading-relaxed">
+          Se fusionan el <code>System Prompt</code> (identidad), los fragmentos RAG y el historial en un JSON estructurado listo para la API.
+        </p>
+      </div>
+
+      <div class="p-5 rounded-xl bg-surface-card border border-surface-border relative">
+        <div class="text-xs font-mono text-emerald-400 font-bold mb-1">PASO 05</div>
+        <h4 class="font-semibold text-white mb-1.5 flex items-center gap-2">
+          <i data-lucide="cpu" class="w-4 h-4 text-emerald-400"></i> Llamada al Modelo LLM
+        </h4>
+        <p class="text-xs text-slate-400 leading-relaxed">
+          Despacho HTTP a OpenAI o DeepSeek. Se captura la latencia de red en milisegundos y el consumo exacto de tokens.
+        </p>
+      </div>
+
+      <div class="p-5 rounded-xl bg-surface-card border border-surface-border relative">
+        <div class="text-xs font-mono text-amber-400 font-bold mb-1">PASO 06</div>
+        <h4 class="font-semibold text-white mb-1.5 flex items-center gap-2">
+          <i data-lucide="check-circle" class="w-4 h-4 text-amber-400"></i> Persistencia y Traza
+        </h4>
+        <p class="text-xs text-slate-400 leading-relaxed">
+          Se guarda la respuesta en SQLite vinculando el contexto utilizado para auditoría e inspección en el modal de Representación.
+        </p>
+      </div>
+
+    </div>
+
+    <!-- Link to official technical document -->
+    <div class="mt-10 p-5 rounded-xl bg-surface-card border border-surface-border flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-lg bg-brand-500/10 text-brand-400 flex items-center justify-center font-bold">
+          🏛️
+        </div>
+        <div>
+          <h4 class="text-sm font-bold text-white">Manual Técnico de Arquitectura Interna</h4>
+          <p class="text-xs text-slate-400">Aprende la anatomía de los payloads JSON, fórmulas de coseno y diferencias técnicas.</p>
+        </div>
+      </div>
+      <a href="https://github.com/bemtorres/mbot/blob/main/DOCUMENTACION_INTERNA_MEMORIA_Y_PROMPTS.md" target="_blank"
+         class="px-4 py-2 rounded-lg bg-surface-muted border border-surface-border hover:border-brand-500/50 text-xs font-semibold text-slate-200 transition-all flex items-center gap-2">
+        <span>Leer Manual Completo</span>
+        <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+      </a>
+    </div>
+  </section>
+
+  <!-- Section 3: Galería de Personajes -->
+  <section id="personajes" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 border-t border-surface-border/60">
+    <div class="text-center max-w-3xl mx-auto mb-16">
+      <h2 class="text-xs font-mono uppercase tracking-widest text-brand-400 font-semibold">Personalidades Vivas</h2>
+      <p class="mt-2 text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+        Los 9 Personajes Preconfigurados
+      </p>
+      <p class="mt-3 text-slate-400 text-sm">
+        Cada bot tiene una identidad única, memoria especializada y estilo conversacional inconfundible.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      
+      <!-- Alex -->
+      <div class="p-6 rounded-2xl bg-surface-card border border-surface-border hover:border-brand-500/40 transition-all">
+        <div class="flex items-center justify-between mb-4">
+          <span class="text-3xl">🤖</span>
+          <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">MEMORIA SIMPLE</span>
+        </div>
+        <h3 class="text-lg font-bold text-white">Alex</h3>
+        <p class="text-xs text-brand-400 font-medium mb-3">Asistente General Multidisciplinario</p>
+        <p class="text-xs text-slate-400 leading-relaxed mb-4">
+          Pragmático, estructurado y enfocado en productividad. Responde en markdown limpio con listas y ejemplos directos.
+        </p>
+        <div class="text-[11px] text-slate-500 font-mono">OpenAI • gpt-4o-mini</div>
+      </div>
+
+      <!-- Sophia -->
+      <div class="p-6 rounded-2xl bg-surface-card border border-surface-border hover:border-cyan-500/40 transition-all">
+        <div class="flex items-center justify-between mb-4">
+          <span class="text-3xl">🧠</span>
+          <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">MEMORIA RAG</span>
+        </div>
+        <h3 class="text-lg font-bold text-white">Sophia</h3>
+        <p class="text-xs text-cyan-400 font-medium mb-3">Especialista en IA & Arquitecturas RAG</p>
+        <p class="text-xs text-slate-400 leading-relaxed mb-4">
+          Científica de datos experta. Consulta su base de conocimiento vectorial e inyecta fuentes técnicas en cada respuesta.
+        </p>
+        <div class="text-[11px] text-slate-500 font-mono">OpenAI • text-embedding-3-small</div>
+      </div>
+
+      <!-- El Principito -->
+      <div class="p-6 rounded-2xl bg-surface-card border border-surface-border hover:border-pink-500/40 transition-all">
+        <div class="flex items-center justify-between mb-4">
+          <span class="text-3xl">🌹</span>
+          <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">MEMORIA SIMPLE</span>
+        </div>
+        <h3 class="text-lg font-bold text-white">El Principito</h3>
+        <p class="text-xs text-pink-400 font-medium mb-3">Filósofo Poético del Asteroide B-612</p>
+        <p class="text-xs text-slate-400 leading-relaxed mb-4">
+          Inocente y conmovedor. Recuerda que lo esencial es invisible a los ojos y reflexiona sobre el sentido de la vida adulta.
+        </p>
+        <div class="text-[11px] text-slate-500 font-mono">OpenAI • gpt-4o-mini</div>
+      </div>
+
+      <!-- El Brayan -->
+      <div class="p-6 rounded-2xl bg-surface-card border border-surface-border hover:border-amber-500/40 transition-all">
+        <div class="flex items-center justify-between mb-4">
+          <span class="text-3xl">🧢</span>
+          <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">MEMORIA SIMPLE</span>
+        </div>
+        <h3 class="text-lg font-bold text-white">El Brayan</h3>
+        <p class="text-xs text-amber-400 font-medium mb-3">Chileno de Barrio / Flaite Carismático</p>
+        <p class="text-xs text-slate-400 leading-relaxed mb-4">
+          Auténtico coa chileno, leal con los suyos y lleno de chispa callejera. Expresa la cultura urbana con humor y corazón.
+        </p>
+        <div class="text-[11px] text-slate-500 font-mono">DeepSeek • deepseek-chat</div>
+      </div>
+
+      <!-- Bernardo O'Higgins -->
+      <div class="p-6 rounded-2xl bg-surface-card border border-surface-border hover:border-red-500/40 transition-all">
+        <div class="flex items-center justify-between mb-4">
+          <span class="text-3xl">🇨🇱</span>
+          <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">MEMORIA RAG</span>
+        </div>
+        <h3 class="text-lg font-bold text-white">Bernardo O'Higgins</h3>
+        <p class="text-xs text-red-400 font-medium mb-3">Padre de la Patria & Director Supremo</p>
+        <p class="text-xs text-slate-400 leading-relaxed mb-4">
+          Ilustrado militar republicano. Conoce al detalle las batallas de Chacabuco y Maipú y la emancipación de Chile.
+        </p>
+        <div class="text-[11px] text-slate-500 font-mono">DeepSeek • deepseek-chat</div>
+      </div>
+
+      <!-- Arturo Prat -->
+      <div class="p-6 rounded-2xl bg-surface-card border border-surface-border hover:border-blue-500/40 transition-all">
+        <div class="flex items-center justify-between mb-4">
+          <span class="text-3xl">⚓</span>
+          <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">MEMORIA RAG</span>
+        </div>
+        <h3 class="text-lg font-bold text-white">Arturo Prat Chacón</h3>
+        <p class="text-xs text-blue-400 font-medium mb-3">Capitán y Héroe Naval de Iquique</p>
+        <p class="text-xs text-slate-400 leading-relaxed mb-4">
+          Abogado y marino ejemplar. Encarna el honor, el cumplimiento del deber cívico y el valor supremo ante la adversidad.
+        </p>
+        <div class="text-[11px] text-slate-500 font-mono">OpenAI • gpt-4o-mini</div>
+      </div>
+
+      <!-- Gabriela Mistral -->
+      <div class="p-6 rounded-2xl bg-surface-card border border-surface-border hover:border-teal-500/40 transition-all">
+        <div class="flex items-center justify-between mb-4">
+          <span class="text-3xl">📜</span>
+          <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">MEMORIA SIMPLE</span>
+        </div>
+        <h3 class="text-lg font-bold text-white">Gabriela Mistral</h3>
+        <p class="text-xs text-teal-400 font-medium mb-3">Poetisa y Premio Nobel de Literatura</p>
+        <p class="text-xs text-slate-400 leading-relaxed mb-4">
+          Lírica andina, educadora y defensora de los niños y los pueblos originarios. Voz profunda, maternal y universal.
+        </p>
+        <div class="text-[11px] text-slate-500 font-mono">DeepSeek • deepseek-chat</div>
+      </div>
+
+      <!-- Sócrates -->
+      <div class="p-6 rounded-2xl bg-surface-card border border-surface-border hover:border-indigo-500/40 transition-all">
+        <div class="flex items-center justify-between mb-4">
+          <span class="text-3xl">🏛️</span>
+          <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">MEMORIA RAG</span>
+        </div>
+        <h3 class="text-lg font-bold text-white">Sócrates</h3>
+        <p class="text-xs text-indigo-400 font-medium mb-3">Filósofo del Método Mayéutico</p>
+        <p class="text-xs text-slate-400 leading-relaxed mb-4">
+          No responde con sermones; guía mediante preguntas profundas para que el interlocutor descubra sus propias verdades.
+        </p>
+        <div class="text-[11px] text-slate-500 font-mono">DeepSeek • deepseek-reasoner (R1)</div>
+      </div>
+
+      <!-- Albert Einstein -->
+      <div class="p-6 rounded-2xl bg-surface-card border border-surface-border hover:border-yellow-500/40 transition-all">
+        <div class="flex items-center justify-between mb-4">
+          <span class="text-3xl">⚛️</span>
+          <span class="text-[11px] font-mono px-2 py-0.5 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">MEMORIA RAG</span>
+        </div>
+        <h3 class="text-lg font-bold text-white">Albert Einstein</h3>
+        <p class="text-xs text-yellow-400 font-medium mb-3">Físico Teórico y Premio Nobel</p>
+        <p class="text-xs text-slate-400 leading-relaxed mb-4">
+          Explicaciones con metáforas visuales, trenes relativistas y el tejido del espacio-tiempo. Humilde y apasionado.
+        </p>
+        <div class="text-[11px] text-slate-500 font-mono">OpenAI • gpt-4o</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Section 4: Servidor MCP -->
+  <section id="mcp" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 border-t border-surface-border/60">
+    <div class="text-center max-w-3xl mx-auto mb-16">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-500/10 border border-cyan-500/30 text-xs font-semibold text-cyan-400 mb-3">
+        Model Context Protocol
+      </div>
+      <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+        Servidor MCP Oficial: Crea de Todo
+      </h2>
+      <p class="mt-4 text-slate-400 text-sm">
+        Permite a agentes de IA como <strong>Cursor</strong>, <strong>Claude Desktop</strong> o <strong>Antigravity</strong> controlar el sistema mediante 14 herramientas estandarizadas.
+      </p>
+    </div>
+
+    <!-- MCP Tools Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-12">
+      <div class="p-4 rounded-xl bg-surface-card border border-surface-border">
+        <code class="text-xs font-mono text-brand-400 font-bold">create_bot</code>
+        <p class="text-xs text-slate-400 mt-1">Crea bots con identidad, memoria, proveedor y prompt.</p>
+      </div>
+      <div class="p-4 rounded-xl bg-surface-card border border-surface-border">
+        <code class="text-xs font-mono text-brand-400 font-bold">list_bots</code>
+        <p class="text-xs text-slate-400 mt-1">Lista todos los bots con métricas de documentos y chat.</p>
+      </div>
+      <div class="p-4 rounded-xl bg-surface-card border border-surface-border">
+        <code class="text-xs font-mono text-brand-400 font-bold">get_bot / update_bot</code>
+        <p class="text-xs text-slate-400 mt-1">Inspecciona y modifica perfiles e instrucciones en vivo.</p>
+      </div>
+      <div class="p-4 rounded-xl bg-surface-card border border-surface-border">
+        <code class="text-xs font-mono text-cyan-400 font-bold">add_knowledge_document</code>
+        <p class="text-xs text-slate-400 mt-1">Auto-divide texto y genera embeddings de OpenAI.</p>
+      </div>
+      <div class="p-4 rounded-xl bg-surface-card border border-surface-border">
+        <code class="text-xs font-mono text-cyan-400 font-bold">test_semantic_search</code>
+        <p class="text-xs text-slate-400 mt-1">Calcula similitud de coseno en tiempo real.</p>
+      </div>
+      <div class="p-4 rounded-xl bg-surface-card border border-surface-border">
+        <code class="text-xs font-mono text-emerald-400 font-bold">chat_with_bot</code>
+        <p class="text-xs text-slate-400 mt-1">Chatea con bots, guarda memoria y devuelve traza.</p>
+      </div>
+    </div>
+
+    <!-- Code config box -->
+    <div class="glass rounded-xl border border-surface-border p-6 max-w-3xl mx-auto">
+      <div class="flex items-center justify-between mb-3 border-b border-surface-border pb-3">
+        <span class="text-xs font-mono text-slate-300">Configuración en Cursor (.cursor/mcp.json)</span>
+        <span class="text-xs font-mono text-brand-400">Listo para usar</span>
+      </div>
+      <pre class="font-mono text-xs text-slate-300 bg-surface p-4 rounded-lg overflow-x-auto leading-relaxed"><code>{
+  "mcpServers": {
+    "mbot-studio": {
+      "command": "node",
+      "args": ["c:/Users/benja/Desktop/mbot/mcp/server.js"]
+    }
+  }
+}</code></pre>
+      <div class="mt-4 flex items-center justify-between text-xs text-slate-400">
+        <span>Para iniciar el servidor MCP independientemente:</span>
+        <code class="px-2 py-1 rounded bg-surface border border-surface-border text-brand-300">npm run mcp</code>
+      </div>
+    </div>
+  </section>
+
+  <!-- Section 5: Crear Personajes por Código -->
+  <section id="codigo" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 border-t border-surface-border/60">
+    <div class="text-center max-w-3xl mx-auto mb-16">
+      <h2 class="text-xs font-mono uppercase tracking-widest text-brand-400 font-semibold">Desarrolladores</h2>
+      <p class="mt-2 text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+        4 Formas Sencillas de Crear Personajes
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      
+      <!-- Option 1: CLI Interactivo -->
+      <div class="p-6 rounded-2xl bg-surface-card border border-surface-border">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="px-2 py-1 rounded bg-brand-500/20 text-brand-300 text-xs font-bold font-mono">1</span>
+          <h3 class="font-bold text-white text-base">CLI Interactivo (El más fácil)</h3>
+        </div>
+        <p class="text-xs text-slate-400 mb-4">
+          Ejecuta el script y responde las preguntas guiadas directamente en tu terminal:
+        </p>
+        <pre class="font-mono text-xs bg-surface p-4 rounded-xl text-slate-200 overflow-x-auto border border-surface-border"><code>node scripts/create-bot.js</code></pre>
+      </div>
+
+      <!-- Option 2: Una sola línea -->
+      <div class="p-6 rounded-2xl bg-surface-card border border-surface-border">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="px-2 py-1 rounded bg-cyan-500/20 text-cyan-300 text-xs font-bold font-mono">2</span>
+          <h3 class="font-bold text-white text-base">Línea de Comandos Rápida</h3>
+        </div>
+        <p class="text-xs text-slate-400 mb-4">
+          Pasa todos los parámetros directamente en una sola instrucción:
+        </p>
+        <pre class="font-mono text-xs bg-surface p-4 rounded-xl text-slate-200 overflow-x-auto border border-surface-border"><code>node scripts/create-bot.js "Don Quijote" "🛡️" "Caballero" "simple" "deepseek" "deepseek-chat" "Eres Don Quijote..."</code></pre>
+      </div>
+
+      <!-- Option 3: Node.js Nativo -->
+      <div class="p-6 rounded-2xl bg-surface-card border border-surface-border">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="px-2 py-1 rounded bg-purple-500/20 text-purple-300 text-xs font-bold font-mono">3</span>
+          <h3 class="font-bold text-white text-base">En JavaScript / Node.js Directo</h3>
+        </div>
+        <pre class="font-mono text-xs bg-surface p-4 rounded-xl text-slate-200 overflow-x-auto border border-surface-border leading-relaxed"><code>import { BotService } from './src/services/botService.js';
+
+const bot = BotService.createBot({
+  name: 'Nikola Tesla',
+  avatar: '⚡',
+  role: 'Genio Electricidad',
+  type: 'rag',
+  provider: 'openai',
+  model: 'gpt-4o-mini',
+  system_prompt: 'Eres Nikola Tesla...'
+});</code></pre>
+      </div>
+
+      <!-- Option 4: API REST HTTP -->
+      <div class="p-6 rounded-2xl bg-surface-card border border-surface-border">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="px-2 py-1 rounded bg-emerald-500/20 text-emerald-300 text-xs font-bold font-mono">4</span>
+          <h3 class="font-bold text-white text-base">API REST con cURL / Fetch</h3>
+        </div>
+        <pre class="font-mono text-xs bg-surface p-4 rounded-xl text-slate-200 overflow-x-auto border border-surface-border leading-relaxed"><code>curl -X POST http://localhost:3000/api/bots \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Marie Curie",
+    "avatar": "🧪",
+    "type": "simple",
+    "provider": "deepseek",
+    "system_prompt": "Eres Marie Curie..."
+  }'</code></pre>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- CTA Banner -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+    <div class="p-8 sm:p-12 rounded-3xl bg-gradient-to-tr from-brand-900/60 via-surface-card to-surface-card border border-brand-500/30 text-center relative overflow-hidden">
+      <div class="max-w-2xl mx-auto relative z-10">
+        <h2 class="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
+          Listo para explorar MBot Studio
+        </h2>
+        <p class="mt-4 text-slate-300 text-sm leading-relaxed">
+          Inicia el servidor localmente en <code>http://localhost:3000</code> o conéctalo a tus asistentes favoritos vía MCP.
+        </p>
+        <div class="mt-8 flex flex-wrap items-center justify-center gap-4">
+          <a href="https://github.com/bemtorres/mbot" target="_blank" rel="noopener noreferrer"
+             class="px-6 py-3.5 rounded-xl bg-white text-slate-900 font-bold hover:bg-slate-100 transition-all shadow-lg flex items-center gap-2">
+            <i data-lucide="github" class="w-4 h-4"></i>
+            <span>Ver Código en GitHub</span>
+          </a>
+          <a href="https://github.com/bemtorres/mbot/blob/main/CREAR_PERSONAJES_POR_CODIGO.md" target="_blank"
+             class="px-6 py-3.5 rounded-xl bg-surface-muted border border-surface-border text-white font-semibold hover:bg-surface-card transition-all">
+            Guía de Personajes
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="border-t border-surface-border/80 py-12 text-center text-xs text-slate-500">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-3">
+      <div class="flex items-center justify-center gap-6 text-slate-400 font-medium">
+        <a href="#caracteristicas" class="hover:text-white transition-colors">Características</a>
+        <a href="#arquitectura" class="hover:text-white transition-colors">Arquitectura</a>
+        <a href="#personajes" class="hover:text-white transition-colors">Personajes</a>
+        <a href="#mcp" class="hover:text-white transition-colors">MCP</a>
+        <a href="https://github.com/bemtorres/mbot" target="_blank" class="hover:text-white transition-colors">GitHub</a>
+      </div>
+      <p>
+        MBot Studio • Construido con Node.js, SQLite, OpenAI, DeepSeek y Tailwind CSS.
+      </p>
+    </div>
+  </footer>
+
+  <!-- Interactive Demo Script -->
+  <script>
+    // Initialize Lucide icons
+    lucide.createIcons();
+
+    // Data for interactive hero preview
+    const botData = {
+      alex: {
+        avatar: '🤖',
+        name: 'Alex • Asistente General',
+        badge: 'MEMORIA SIMPLE (SQLite)',
+        badgeClass: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+        query: '¿Quién eres y cómo funciona tu memoria en este sistema?',
+        response: '¡Hola! Soy <strong>Alex</strong>. Mi memoria es de tipo <strong>Historial de Texto Simple</strong>. Cada mensaje que intercambiamos se almacena en SQLite en la tabla <code>messages</code> y el servidor mantiene una ventana contextual de nuestros últimos turnos de diálogo para responderte con coherencia inmediata sin requerir embeddings vectoriales.',
+        hasRag: false,
+        provider: 'Proveedor: OpenAI (gpt-4o-mini)',
+        tokens: 'Tokens: 412 total'
+      },
+      sophia: {
+        avatar: '🧠',
+        name: 'Sophia • Especialista en IA',
+        badge: 'MEMORIA RAG (OpenAI Embeddings)',
+        badgeClass: 'bg-cyan-500/10 text-cyan-400 border-cyan-500/20',
+        query: '¿Qué método utilizas para recordar información técnica?',
+        response: 'Utilizo <strong>RAG (Retrieval-Augmented Generation)</strong> con embeddings vectoriales de OpenAI (<code>text-embedding-3-small</code>). Cuando me haces una pregunta, el servidor calcula un vector de 1536 dimensiones y ejecuta una búsqueda por <strong>similitud de coseno</strong> en SQLite, inyectando los fragmentos más relevantes en mi System Prompt antes de responder.',
+        hasRag: true,
+        provider: 'Proveedor: OpenAI (gpt-4o-mini)',
+        tokens: 'Tokens: 785 total'
+      },
+      brayan: {
+        avatar: '🧢',
+        name: 'El Brayan • Chileno de Barrio',
+        badge: 'MEMORIA SIMPLE (DeepSeek)',
+        badgeClass: 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20',
+        query: 'Wena compa, ¿cómo te trata la vida por acá?',
+        response: '¡Wena hermano! Aquí andamos pulento po, dándole con to’ el corte en la base de datos SQLite. Yo me acuerdo de to’ lo que me dijiste hace un rato porque el servidor me pasa la ficha completa de la conversa. ¡Cualquier volá me avisai nomás, pana!',
+        hasRag: false,
+        provider: 'Proveedor: DeepSeek (deepseek-chat)',
+        tokens: 'Tokens: 389 total'
+      },
+      socrates: {
+        avatar: '🏛️',
+        name: 'Sócrates • Filósofo Mayéutico',
+        badge: 'MEMORIA RAG (DeepSeek Reasoner R1)',
+        badgeClass: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/20',
+        query: '¿Qué es la verdadera justicia?',
+        response: 'Amigo mío, antes de aventurarme a definir qué es la justicia, permíteme preguntarte: ¿acaso la justicia depende de la voluntad de los hombres poderosos, o existe una armonía intrínseca en el alma que trasciende nuestras leyes temporales? ¿Cómo distinguirías tú a un acto justo de uno meramente conveniente?',
+        hasRag: true,
+        provider: 'Proveedor: DeepSeek (deepseek-reasoner)',
+        tokens: 'Tokens: 1,240 total'
+      }
+    };
+
+    function switchHeroBot(key) {
+      const data = botData[key];
+      if (!data) return;
+
+      // Update tabs styling
+      document.querySelectorAll('.demo-tab').forEach(tab => {
+        tab.className = 'demo-tab px-3 py-1 text-xs rounded-md font-medium transition-all bg-surface-muted text-slate-400 hover:text-white';
+      });
+      const activeTab = document.getElementById(`tab-${key}`);
+      if (activeTab) {
+        activeTab.className = 'demo-tab px-3 py-1 text-xs rounded-md font-medium transition-all bg-brand-600 text-white';
+      }
+
+      // Update contents
+      document.getElementById('demo-avatar').textContent = data.avatar;
+      document.getElementById('demo-bot-name').textContent = data.name;
+      
+      const badge = document.getElementById('demo-badge');
+      badge.textContent = data.badge;
+      badge.className = `text-[11px] font-mono px-2 py-0.5 rounded border ${data.badgeClass}`;
+
+      document.getElementById('demo-user-query').textContent = data.query;
+      document.getElementById('demo-bot-response').innerHTML = data.response;
+
+      const ragBox = document.getElementById('demo-rag-box');
+      if (data.hasRag) {
+        ragBox.classList.remove('hidden');
+      } else {
+        ragBox.classList.add('hidden');
+      }
+
+      document.getElementById('demo-trace-provider').textContent = data.provider;
+      document.getElementById('demo-trace-tokens').textContent = data.tokens;
+
+      lucide.createIcons();
+    }
+  </script>
+</body>
+</html>
