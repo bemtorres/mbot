@@ -1,0 +1,39 @@
+# Dependencias
+node_modules/
+package-lock.json
+
+# Variables de entorno y credenciales (claves API)
+.env
+.env.local
+.env.*.local
+
+# Base de datos SQLite y archivos WAL temporales
+database/*.db
+database/*.db-wal
+database/*.db-shm
+*.sqlite
+*.sqlite3
+*.db
+
+# Logs del sistema y de paquetes
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+*.log
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
+ehthumbs.db
+
+# Configuración de editores e IDEs
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Archivos temporales
+*.tmp
+*.temp
