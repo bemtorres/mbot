@@ -10,6 +10,8 @@ const state = {
   messages: [],
   isSending: false,
   settings: null,
+  lastTrace: null,
+  tracesByMessageId: {},
 };
 
 // Inicialización al cargar la página
@@ -298,18 +300,39 @@ function renderMessages() {
         </div>
       `;
     } else {
+      const hasTrace = Boolean(msg.trace || state.tracesByMessageId[msg.id]);
+      const traceData = msg.trace || state.tracesByMessageId[msg.id];
+      const traceBadgeText = traceData 
+        ? `${traceData.totalTokens || 0} tokens • ${traceData.totalDurationMs || 0}ms`
+        : 'Ver pipeline';
+
       return `
         <div class="flex items-start gap-3">
           <div class="w-8 h-8 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-base shrink-0 shadow-sm mt-0.5">
             ${state.activeBot ? state.activeBot.avatar : '🤖'}
           </div>
-          <div class="max-w-[90%] sm:max-w-[80%] rounded-2xl rounded-tl-sm bg-slate-900/80 border border-slate-800 text-slate-100 px-4 py-3 shadow-md">
+          <div class="max-w-[92%] sm:max-w-[85%] rounded-2xl rounded-tl-sm bg-slate-900/80 border border-slate-800 text-slate-100 px-4 py-3 shadow-md">
             <div class="flex items-center justify-between gap-2 mb-1">
               <span class="text-xs font-bold text-indigo-300">${escapeHtml(state.activeBot?.name || 'Bot')}</span>
               <span class="text-[10px] text-slate-500 font-mono">${formatTime(msg.created_at)}</span>
             </div>
             <div class="prose-chat text-sm leading-relaxed">${parsedContent}</div>
             ${sourcesHtml}
+
+            <!-- Botón Representación Paso a Paso del Mensaje -->
+            <div class="mt-3 pt-2 border-t border-slate-800/80 flex items-center justify-between gap-2 flex-wrap">
+              <button 
+                onclick="openRepresentationModal('${msg.id}')" 
+                class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-500/10 text-amber-300 border border-amber-500/30 hover:bg-amber-500/20 hover:border-amber-400 transition text-[11px] font-semibold shadow-sm"
+                title="Inspeccionar paso a paso cómo se generó esta respuesta"
+              >
+                <i data-lucide="git-merge" class="w-3.5 h-3.5 text-amber-400"></i>
+                <span>⚡ Representación</span>
+              </button>
+              <span class="text-[10px] text-slate-500 font-mono">
+                ${traceBadgeText} • SQLite
+              </span>
+            </div>
           </div>
         </div>
       `;
@@ -357,7 +380,7 @@ async function handleSendMessage(event) {
   state.messages.push(tempUserMsg);
   renderMessages();
 
-  // Mostrar indicador de escritura del bot
+  // Mostrar visualización animada del pipeline paso a paso
   appendTypingIndicator();
 
   try {
@@ -365,11 +388,17 @@ async function handleSendMessage(event) {
     removeTypingIndicator();
 
     if (res.success) {
+      if (res.data.trace) {
+        state.lastTrace = res.data.trace;
+        state.tracesByMessageId[res.data.messageId] = res.data.trace;
+      }
+
       const assistantMsg = {
         id: res.data.messageId,
         role: 'assistant',
         content: res.data.reply,
         context_used: res.data.sourcesUsed || null,
+        trace: res.data.trace || null,
         created_at: new Date().toISOString()
       };
       state.messages.push(assistantMsg);
@@ -404,20 +433,65 @@ function appendTypingIndicator() {
   const typingDiv = document.createElement('div');
   typingDiv.id = 'typing-indicator-box';
   typingDiv.className = 'flex items-start gap-3';
+  
+  const isRag = state.activeBot?.type === 'rag';
+  const provider = (state.activeBot?.provider || 'openai').toUpperCase();
+  const model = state.activeBot?.model || 'gpt-4o-mini';
+
   typingDiv.innerHTML = `
     <div class="w-8 h-8 rounded-xl bg-slate-800 border border-slate-700 flex items-center justify-center text-base shrink-0 mt-0.5">
       ${state.activeBot ? state.activeBot.avatar : '🤖'}
     </div>
-    <div class="rounded-2xl rounded-tl-sm bg-slate-900/80 border border-slate-800 px-4 py-3 flex items-center gap-1.5">
-      <div class="typing-dot"></div>
-      <div class="typing-dot"></div>
-      <div class="typing-dot"></div>
-      <span class="text-xs text-slate-400 ml-1.5 font-mono">
-        ${state.activeBot?.type === 'rag' ? 'Consultando memoria RAG...' : 'Pensando...'}
-      </span>
+    <div class="w-full max-w-md rounded-2xl rounded-tl-sm bg-slate-900/90 border border-amber-500/30 p-3.5 shadow-xl space-y-2.5">
+      
+      <!-- Cabecera del Indicador en Vivo -->
+      <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+        <div class="flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span>
+          <span class="text-xs font-bold text-amber-300">Ejecutando Flujo del Sistema...</span>
+        </div>
+        <button onclick="openRepresentationModal()" class="text-[10px] px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 border border-amber-500/30 font-semibold transition">
+          ⚡ Representación
+        </button>
+      </div>
+
+      <!-- Pasos visuales en tiempo real -->
+      <div class="space-y-1.5 text-[11px] font-mono text-slate-300">
+        <div class="flex items-center gap-2 text-emerald-400">
+          <span class="w-4 text-center">✓</span>
+          <span>1. Entrada guardada en SQLite (tabla 'messages')</span>
+        </div>
+        <div class="flex items-center gap-2 text-emerald-400">
+          <span class="w-4 text-center">✓</span>
+          <span>2. Recuperando historial previo en SQLite</span>
+        </div>
+        <div class="flex items-center gap-2 text-amber-300 animate-pulse">
+          <span class="w-4 text-center">⏳</span>
+          <span>${isRag ? '3. OpenAI Embeddings & Similitud Coseno en SQLite...' : '3. Ensamblando contexto directo (Memoria Simple)...'}</span>
+        </div>
+        <div class="flex items-center gap-2 text-slate-400">
+          <span class="w-4 text-center">⏳</span>
+          <span>4. Enviando prompt a ${provider} (${model})...</span>
+        </div>
+        <div class="flex items-center gap-2 text-slate-500">
+          <span class="w-4 text-center">⏳</span>
+          <span>5. Esperando tokens devueltos y persistencia final...</span>
+        </div>
+      </div>
+
+      <div class="pt-1 flex items-center justify-between text-[10px] text-slate-500 border-t border-slate-800/60">
+        <span>SQLite + ${isRag ? 'OpenAI Embeddings' : 'Historial Simple'}</span>
+        <div class="flex gap-1">
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+          <div class="typing-dot"></div>
+        </div>
+      </div>
+
     </div>
   `;
   container.appendChild(typingDiv);
+  if (window.lucide) lucide.createIcons();
   scrollToBottom();
 }
 
@@ -833,6 +907,156 @@ async function saveApiSettings() {
   } catch (err) {
     alert('Error al guardar configuración: ' + err.message);
   }
+}
+
+/* ========================================================
+   MODAL: REPRESENTACIÓN VISUAL DEL FLUJO DEL SISTEMA
+======================================================== */
+function openRepresentationModal(messageId = null) {
+  let trace = null;
+
+  if (messageId && state.tracesByMessageId[messageId]) {
+    trace = state.tracesByMessageId[messageId];
+  } else if (state.lastTrace) {
+    trace = state.lastTrace;
+  } else {
+    // Generar un trace ilustrativo basado en el bot activo
+    const bot = state.activeBot || { name: 'Alex', type: 'simple', provider: 'openai', model: 'gpt-4o-mini' };
+    trace = createDefaultTraceForBot(bot);
+  }
+
+  // Actualizar cabecera y estadísticas
+  const botBadge = document.getElementById('rep-bot-badge');
+  botBadge.innerText = `${trace.botName} (${trace.botType === 'rag' ? 'RAG Embeddings' : 'Memoria Simple'})`;
+
+  document.getElementById('rep-stat-time').innerText = `${trace.totalDurationMs || 0} ms`;
+  document.getElementById('rep-stat-prompt-tokens').innerText = trace.promptTokens || 0;
+  document.getElementById('rep-stat-completion-tokens').innerText = trace.completionTokens || 0;
+  document.getElementById('rep-stat-model').innerText = `${(trace.provider || 'openai').toUpperCase()} • ${trace.model || 'gpt-4o-mini'}`;
+
+  // Actualizar nodo RAG en el pipeline gráfico
+  const ragNode = document.getElementById('pipe-step-rag');
+  if (ragNode) {
+    if (trace.botType === 'rag') {
+      ragNode.className = 'p-2 rounded-lg bg-purple-950/40 border border-purple-500/40 flex flex-col items-center';
+    } else {
+      ragNode.className = 'p-2 rounded-lg bg-slate-950/80 border border-slate-800 opacity-60 flex flex-col items-center';
+    }
+  }
+
+  // Renderizar pasos
+  const container = document.getElementById('rep-steps-container');
+  container.innerHTML = trace.steps.map(step => {
+    let detailsHtml = '';
+    if (step.details) {
+      detailsHtml = `
+        <details class="mt-2 text-xs group">
+          <summary class="cursor-pointer text-slate-400 hover:text-slate-200 select-none text-[11px] inline-flex items-center gap-1 font-mono">
+            <span>🔍 Ver detalles técnicos y métricas</span>
+          </summary>
+          <pre class="mt-1.5 p-2.5 rounded-lg bg-slate-950/90 border border-slate-800 text-slate-300 font-mono text-[11px] overflow-x-auto">${escapeHtml(JSON.stringify(step.details, null, 2))}</pre>
+        </details>
+      `;
+    }
+
+    return `
+      <div class="p-4 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 transition space-y-2">
+        <div class="flex items-center justify-between flex-wrap gap-2">
+          <div class="flex items-center gap-2.5">
+            <span class="w-6 h-6 rounded-full bg-indigo-500/20 text-indigo-300 flex items-center justify-center font-bold text-xs">
+              ${step.stepNumber}
+            </span>
+            <h5 class="font-bold text-sm text-slate-100">${escapeHtml(step.title)}</h5>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-mono">
+              Completado
+            </span>
+            <span class="text-[11px] font-mono text-amber-400/90 bg-amber-950/30 px-2 py-0.5 rounded border border-amber-500/20">
+              ${step.durationMs} ms
+            </span>
+          </div>
+        </div>
+        <p class="text-xs text-slate-300 leading-relaxed pl-8">
+          ${escapeHtml(step.summary)}
+        </p>
+        <div class="pl-8">
+          ${detailsHtml}
+        </div>
+      </div>
+    `;
+  }).join('');
+
+  document.getElementById('modal-representation').classList.remove('hidden');
+  document.getElementById('modal-representation').classList.add('flex');
+  if (window.lucide) lucide.createIcons();
+}
+
+function closeRepresentationModal() {
+  document.getElementById('modal-representation').classList.add('hidden');
+  document.getElementById('modal-representation').classList.remove('flex');
+}
+
+function createDefaultTraceForBot(bot) {
+  const isRag = bot.type === 'rag';
+  return {
+    botName: bot.name,
+    botType: bot.type,
+    provider: bot.provider,
+    model: bot.model,
+    totalDurationMs: 420,
+    totalTokens: 185,
+    promptTokens: 110,
+    completionTokens: 75,
+    steps: [
+      {
+        stepNumber: 1,
+        title: '1. Entrada y Registro en SQLite',
+        durationMs: 8,
+        summary: 'Mensaje del usuario recibido, tokenizado aproximadamente y registrado en la tabla messages de SQLite.',
+        details: { database: 'SQLite (database/bot.db)', table: 'messages', action: 'INSERT INTO messages' }
+      },
+      {
+        stepNumber: 2,
+        title: '2. Consulta de Memoria Conversacional (SQLite)',
+        durationMs: 12,
+        summary: 'Se consultó SQLite para recuperar los mensajes previos de la sesión y preservar el hilo del diálogo.',
+        details: { action: 'SELECT role, content FROM messages WHERE conversation_id = ?' }
+      },
+      {
+        stepNumber: 3,
+        title: isRag ? '3. Búsqueda Vectorial RAG (OpenAI Embeddings)' : '3. Memoria de Texto Simple (Sin Embeddings)',
+        durationMs: isRag ? 140 : 2,
+        summary: isRag 
+          ? 'Vectorización de la pregunta con OpenAI (text-embedding-3-small) y búsqueda de fragmentos con mayor similitud de coseno en SQLite.'
+          : 'Modo Memoria Simple: Se omite la generación de embeddings y se utiliza el texto del historial directamente.',
+        details: isRag 
+          ? { model: 'text-embedding-3-small', dims: 1536, metric: 'Cosine Similarity', vectorTable: 'knowledge_embeddings' }
+          : { mode: 'simple_conversational_text' }
+      },
+      {
+        stepNumber: 4,
+        title: '4. Ensamblado del Contexto e Identidad',
+        durationMs: 5,
+        summary: `Se combinaron las instrucciones maestras de identidad (${bot.name}), el contexto de memoria y el historial.`,
+        details: { botIdentity: bot.name, role: bot.role }
+      },
+      {
+        stepNumber: 5,
+        title: `5. Llamada a ${bot.provider.toUpperCase()} (${bot.model})`,
+        durationMs: 245,
+        summary: `Envío del prompt al endpoint de ${bot.provider.toUpperCase()}. Se recibieron los tokens generados de vuelta.`,
+        details: { provider: bot.provider, model: bot.model, promptTokens: 110, completionTokens: 75, totalTokens: 185 }
+      },
+      {
+        stepNumber: 6,
+        title: '6. Guardado de Respuesta en SQLite',
+        durationMs: 10,
+        summary: 'Respuesta persistida en SQLite con metadatos de contexto para auditoría continua.',
+        details: { table: 'messages', saved: true }
+      }
+    ]
+  };
 }
 
 /* ========================================================

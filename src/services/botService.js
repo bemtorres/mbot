@@ -229,30 +229,95 @@ export class BotService {
       conversation = this.getOrCreateConversation(botId);
     }
 
-    // 1. Guardar mensaje del usuario en SQLite
+    const totalStartTime = Date.now();
+    const traceSteps = [];
+
+    // Paso 1: Entrada y guardado del mensaje en SQLite
+    const step1Start = Date.now();
     const userMsgId = `msg-${randomUUID()}`;
     db.prepare(`
       INSERT INTO messages (id, conversation_id, bot_id, role, content)
       VALUES (?, ?, ?, 'user', ?)
     `).run(userMsgId, conversation.id, bot.id, userMessage.trim());
+    const step1Duration = Date.now() - step1Start;
 
-    // 2. Preparar el contexto según el tipo de memoria
+    traceSteps.push({
+      stepNumber: 1,
+      id: 'step_input_sqlite',
+      title: '1. Entrada y Registro en SQLite',
+      icon: 'message-square',
+      status: 'completed',
+      durationMs: step1Duration,
+      summary: `Mensaje recibido (${userMessage.trim().length} caracteres, ~${Math.ceil(userMessage.trim().length / 4)} tokens) y guardado en tabla 'messages'.`,
+      details: {
+        messageId: userMsgId,
+        charCount: userMessage.trim().length,
+        estimatedTokens: Math.ceil(userMessage.trim().length / 4),
+        database: 'SQLite (database/bot.db)',
+        table: 'messages'
+      }
+    });
+
+    // Paso 2: Recuperación de memoria conversacional en SQLite
+    const step2Start = Date.now();
+    const previousMessages = db.prepare(`
+      SELECT role, content FROM messages
+      WHERE conversation_id = ?
+      ORDER BY created_at ASC
+    `).all(conversation.id);
+
+    const recentHistory = previousMessages.slice(-16).map(m => ({
+      role: m.role,
+      content: m.content
+    }));
+    const step2Duration = Date.now() - step2Start;
+
+    traceSteps.push({
+      stepNumber: 2,
+      id: 'step_history_sqlite',
+      title: '2. Consulta de Memoria Conversacional (SQLite)',
+      icon: 'database',
+      status: 'completed',
+      durationMs: step2Duration,
+      summary: `Recuperados ${recentHistory.length} mensajes previos de SQLite para mantener el hilo contextual.`,
+      details: {
+        conversationId: conversation.id,
+        totalHistoricalMessages: previousMessages.length,
+        contextWindowTurns: recentHistory.length,
+        sqliteQuery: 'SELECT role, content FROM messages WHERE conversation_id = ? ORDER BY created_at ASC'
+      }
+    });
+
+    // Paso 3: Memoria RAG y Búsqueda Vectorial (OpenAI Embeddings)
+    const step3Start = Date.now();
     let retrievedChunks = [];
     let systemInstruction = bot.system_prompt;
+    let ragDetails = {
+      isRag: bot.type === 'rag',
+      chunksRetrieved: 0,
+      embeddingModel: 'N/A'
+    };
 
     if (bot.type === 'rag') {
-      // BOT 2: MEMORIA COMPLEJA CON EMBEDDINGS (RAG)
       try {
         const openAiKey = SettingsService.get('OPENAI_API_KEY');
         if (openAiKey) {
+          ragDetails.embeddingModel = 'OpenAI text-embedding-3-small (1536 dims)';
           // Generar embedding con OpenAI para la consulta del usuario
           const { embedding } = await EmbeddingService.generateEmbedding(userMessage.trim());
           // Buscar fragmentos más similares en SQLite
           retrievedChunks = VectorService.searchSimilarChunks(bot.id, embedding, 3, 0.25);
         } else {
-          // Si no hay API key aún, buscar coincidencias textuales básicas en los documentos existentes para simulación RAG
+          ragDetails.embeddingModel = 'Modo Simulación RAG (búsqueda de términos)';
           retrievedChunks = this.searchKeywordChunks(bot.id, userMessage.trim(), 2);
         }
+
+        ragDetails.chunksRetrieved = retrievedChunks.length;
+        ragDetails.matchedSources = retrievedChunks.map(c => ({
+          document: c.doc_title,
+          similarityScore: (c.similarity * 100).toFixed(1) + '%',
+          chunkIndex: c.chunk_index
+        }));
 
         if (retrievedChunks.length > 0) {
           const contextBlocks = retrievedChunks.map((c, i) => 
@@ -263,38 +328,85 @@ export class BotService {
         }
       } catch (embErr) {
         console.warn('Advertencia en recuperación RAG:', embErr.message);
+        ragDetails.error = embErr.message;
       }
     }
+    const step3Duration = Date.now() - step3Start;
 
-    // 3. Obtener el historial conversacional previo (Memoria de texto de SQLite)
-    // Se aplica a AMBOS bots para mantener continuidad del diálogo
-    const previousMessages = db.prepare(`
-      SELECT role, content FROM messages
-      WHERE conversation_id = ?
-      ORDER BY created_at ASC
-    `).all(conversation.id);
+    traceSteps.push({
+      stepNumber: 3,
+      id: 'step_rag_embeddings',
+      title: bot.type === 'rag' ? '3. Búsqueda Vectorial RAG (OpenAI Embeddings)' : '3. Memoria de Texto Simple (Sin Embeddings)',
+      icon: 'brain',
+      status: 'completed',
+      durationMs: step3Duration,
+      summary: bot.type === 'rag' 
+        ? (retrievedChunks.length > 0
+            ? `Se vectorizó la consulta con OpenAI y se encontraron ${retrievedChunks.length} fragmentos relevantes mediante Similitud de Coseno en SQLite.`
+            : `Se vectorizó con OpenAI pero no se hallaron fragmentos con similitud superior al umbral.`)
+        : `Bot tipo Simple: Se omite búsqueda de embeddings. Se apoya exclusivamente en el contexto directo de SQLite.`,
+      details: ragDetails
+    });
 
-    // Limitar el historial para no desbordar tokens (últimos 16 mensajes)
-    const recentHistory = previousMessages.slice(-16).map(m => ({
-      role: m.role,
-      content: m.content
-    }));
-
-    // Ensamblar array para el LLM
+    // Paso 4: Ensamblado del Prompt e Identidad
+    const step4Start = Date.now();
     const promptMessages = [
       { role: 'system', content: systemInstruction },
       ...recentHistory
     ];
+    const totalPromptChars = promptMessages.reduce((acc, m) => acc + (m.content ? m.content.length : 0), 0);
+    const approxPromptTokens = Math.ceil(totalPromptChars / 4);
+    const step4Duration = Date.now() - step4Start;
 
-    // 4. Llamar al proveedor correspondiente (OpenAI o DeepSeek)
+    traceSteps.push({
+      stepNumber: 4,
+      id: 'step_prompt_assembly',
+      title: '4. Ensamblado del Prompt e Identidad',
+      icon: 'layers',
+      status: 'completed',
+      durationMs: step4Duration,
+      summary: `Se combinó la identidad de ${bot.name}, el contexto y el historial en ${promptMessages.length} bloques de conversación (~${approxPromptTokens} tokens estimados).`,
+      details: {
+        botName: bot.name,
+        systemPromptLength: bot.system_prompt.length,
+        totalBlocks: promptMessages.length,
+        totalPromptChars,
+        approxPromptTokens,
+        ragContextAttached: retrievedChunks.length > 0
+      }
+    });
+
+    // Paso 5: Solicitud al Modelo de Lenguaje (OpenAI o DeepSeek)
+    const step5Start = Date.now();
     const completion = await LLMService.chatCompletion({
       provider: bot.provider,
       model: bot.model,
       messages: promptMessages,
       temperature: bot.temperature
     });
+    const step5Duration = completion.latencyMs || (Date.now() - step5Start);
 
-    // 5. Guardar respuesta del asistente en SQLite (con fragmentos RAG usados si aplica)
+    traceSteps.push({
+      stepNumber: 5,
+      id: 'step_llm_call',
+      title: `5. Llamada a ${completion.provider.toUpperCase()} (${completion.model})`,
+      icon: 'cpu',
+      status: 'completed',
+      durationMs: step5Duration,
+      summary: `Llamada completada a ${completion.provider.toUpperCase()}. Tokens enviados: ${completion.usage?.prompt_tokens || 0}. Tokens devueltos: ${completion.usage?.completion_tokens || 0}.`,
+      details: {
+        provider: completion.provider,
+        model: completion.model,
+        temperature: bot.temperature,
+        promptTokens: completion.usage?.prompt_tokens || approxPromptTokens,
+        completionTokens: completion.usage?.completion_tokens || 0,
+        totalTokens: completion.usage?.total_tokens || 0,
+        networkLatencyMs: step5Duration
+      }
+    });
+
+    // Paso 6: Persistencia de la Respuesta en SQLite
+    const step6Start = Date.now();
     const assistantMsgId = `msg-${randomUUID()}`;
     const contextJson = retrievedChunks.length > 0 ? JSON.stringify(retrievedChunks) : null;
 
@@ -309,6 +421,37 @@ export class BotService {
       db.prepare('UPDATE conversations SET title = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?')
         .run(summaryTitle, conversation.id);
     }
+    const step6Duration = Date.now() - step6Start;
+
+    traceSteps.push({
+      stepNumber: 6,
+      id: 'step_persistence',
+      title: '6. Guardado de Respuesta en SQLite',
+      icon: 'check-circle-2',
+      status: 'completed',
+      durationMs: step6Duration,
+      summary: `Respuesta de ${completion.content.length} caracteres guardada en SQLite con trazabilidad de contexto.`,
+      details: {
+        assistantMessageId: assistantMsgId,
+        charCount: completion.content.length,
+        contextSavedInDb: Boolean(contextJson)
+      }
+    });
+
+    const totalDuration = Date.now() - totalStartTime;
+
+    const executionTrace = {
+      timestamp: new Date().toISOString(),
+      botName: bot.name,
+      botType: bot.type,
+      provider: completion.provider,
+      model: completion.model,
+      totalDurationMs: totalDuration,
+      totalTokens: completion.usage?.total_tokens || 0,
+      promptTokens: completion.usage?.prompt_tokens || approxPromptTokens,
+      completionTokens: completion.usage?.completion_tokens || 0,
+      steps: traceSteps
+    };
 
     return {
       messageId: assistantMsgId,
@@ -318,7 +461,8 @@ export class BotService {
       provider: completion.provider,
       botType: bot.type,
       sourcesUsed: retrievedChunks,
-      historyCount: previousMessages.length + 1
+      historyCount: previousMessages.length + 1,
+      trace: executionTrace
     };
   }
 

@@ -43,13 +43,17 @@ export class LLMService {
       ? SettingsService.get('DEEPSEEK_API_KEY') 
       : SettingsService.get('OPENAI_API_KEY');
 
+    const startTime = Date.now();
+
     // Modo demostrativo inteligente si el usuario aún no configuró la clave de API
     if (!apiKey) {
-      return this.generateSimulatedResponse({
+      const simulated = this.generateSimulatedResponse({
         provider: activeProvider,
         model: targetModel,
         messages
       });
+      simulated.latencyMs = Date.now() - startTime;
+      return simulated;
     }
 
     const client = this.getClient(activeProvider);
@@ -63,12 +67,18 @@ export class LLMService {
 
     const choice = response.choices[0];
     const content = choice.message?.content || '';
+    const durationMs = Date.now() - startTime;
 
     return {
       content,
       model: response.model || targetModel,
       provider: activeProvider,
-      usage: response.usage
+      usage: response.usage || {
+        prompt_tokens: Math.ceil(messages.map(m => m.content).join('').length / 4),
+        completion_tokens: Math.ceil(content.length / 4),
+        total_tokens: Math.ceil((messages.map(m => m.content).join('').length + content.length) / 4)
+      },
+      latencyMs: durationMs
     };
   }
 
@@ -93,11 +103,19 @@ export class LLMService {
 
     reply += `> 💡 **Para activar respuestas en tiempo real con ${provider.toUpperCase()}:** Haz clic en el botón de **⚙️ Ajustes** en la esquina superior derecha e ingresa tu clave API de ${provider === 'deepseek' ? 'DeepSeek' : 'OpenAI'}.`;
 
+    const promptText = messages.map(m => m.content).join(' ');
+    const promptTokens = Math.max(12, Math.ceil(promptText.length / 4));
+    const completionTokens = Math.max(25, Math.ceil(reply.length / 4));
+
     return {
       content: reply,
       model: `${model} (demo)`,
       provider,
-      usage: { prompt_tokens: 0, completion_tokens: 0, total_tokens: 0 }
+      usage: {
+        prompt_tokens: promptTokens,
+        completion_tokens: completionTokens,
+        total_tokens: promptTokens + completionTokens
+      }
     };
   }
 }
