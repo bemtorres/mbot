@@ -9,6 +9,7 @@ El sistema integra dos arquitecturas de memoria distintas, conexión con **OpenA
 ## 📖 Guías Rápidas Destacadas
 
 - 🛠️ **[Guía: Cómo Crear Personajes y Bots por Código (Paso a Paso)](file:///c:/Users/benja/Desktop/mbot/CREAR_PERSONAJES_POR_CODIGO.md)**: Métodos por CLI interactivo, argumentos, Node.js directo, API REST y MCP.
+- 🏛️ **[Documentación Oficial: Arquitectura Interna de Prompts y Memoria (OpenAI & DeepSeek)](file:///c:/Users/benja/Desktop/mbot/DOCUMENTACION_INTERNA_MEMORIA_Y_PROMPTS.md)**: Explicación de cómo viaja el System Prompt, Memoria de Corto Plazo, Memoria de Largo Plazo (RAG) y los JSON de payload enviados a los LLMs.
 - 🔌 **[Servidor MCP (Model Context Protocol)](#-servidor-mcp-model-context-protocol)**: Conecta cualquier asistente de IA para crear bots, inyectar conocimiento y chatear programáticamente.
 
 ---

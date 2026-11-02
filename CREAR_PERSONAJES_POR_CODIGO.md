@@ -2,6 +2,9 @@
 
 Esta guía explica **paso a paso y de manera súper fácil** cómo crear nuevos bots/personajes en **MBot Studio** utilizando código, sin depender exclusivamente de la interfaz web.
 
+> 💡 **¿Quieres entender cómo funciona por dentro con OpenAI o DeepSeek?**  
+> Consulta la [🏛️ Documentación Oficial: Arquitectura Interna de Prompts y Memoria](file:///c:/Users/benja/Desktop/mbot/DOCUMENTACION_INTERNA_MEMORIA_Y_PROMPTS.md) para ver la anatomía de los payloads, el System Prompt y cómo se diferencian la Memoria de Corto Plazo y la Memoria de Largo Plazo (RAG).
+
 ---
 
 ## 📋 ¿Qué compone a un Personaje en MBot?
