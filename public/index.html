@@ -6,44 +6,8 @@
   <title>MBot Studio | Chatbots con Identidad y Memoria SQLite</title>
   <meta name="description" content="Plataforma de chatbots con identidad, memoria SQLite y RAG Embeddings con interfaz estilo shadcn/ui.">
   
-  <!-- Tailwind CSS CDN -->
-  <script>
-    // Inicializar window.tailwind antes o después de la carga del script CDN
-    window.tailwind = window.tailwind || {};
-    window.tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            border: '#27272a',
-            input: '#27272a',
-            ring: '#71717a',
-            background: '#09090b',
-            foreground: '#fafafa',
-            primary: {
-              DEFAULT: '#fafafa',
-              foreground: '#18181b',
-            },
-            secondary: {
-              DEFAULT: '#27272a',
-              foreground: '#fafafa',
-            },
-            muted: {
-              DEFAULT: '#18181b',
-              foreground: '#a1a1aa',
-            },
-            accent: {
-              DEFAULT: '#27272a',
-              foreground: '#fafafa',
-            },
-          }
-        }
-      }
-    };
-  </script>
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- Google Fonts & Lucide Icons -->
+  <!-- Tailwind CSS Compilado Localmente (vía NPM) -->
+  <link rel="stylesheet" href="/css/tailwind.css">
   <link rel="stylesheet" href="/css/styles.css">
   <script src="https://unpkg.com/lucide@latest"></script>
   <!-- Marked.js para renderizar Markdown -->
