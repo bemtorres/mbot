@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "mbot-studio": {
+      "command": "node",
+      "args": [
+        "c:/Users/benja/Desktop/mbot/mcp/server.js"
+      ]
+    }
+  }
+}

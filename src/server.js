@@ -10,7 +10,7 @@ import chatRoutes from './routes/chatRoutes.js';
 import knowledgeRoutes from './routes/knowledgeRoutes.js';
 import settingsRoutes from './routes/settingsRoutes.js';
 
-dotenv.config();
+dotenv.config({ quiet: true });
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

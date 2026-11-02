@@ -1,6 +1,6 @@
 import db from '../../database/db.js';
 import dotenv from 'dotenv';
-dotenv.config();
+dotenv.config({ quiet: true });
 
 export class SettingsService {
   /**
