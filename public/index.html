@@ -33,10 +33,18 @@
           </div>
         </div>
 
-        <!-- Botón Configuración Rápida API -->
-        <button onclick="openSettingsModal()" class="h-7 w-7 rounded-md border border-zinc-800 hover:bg-zinc-800/80 text-zinc-400 hover:text-zinc-100 flex items-center justify-center transition" title="Ajustes de API">
-          <i data-lucide="settings" class="w-3.5 h-3.5"></i>
-        </button>
+        <!-- Botones de Acción Sidebar -->
+        <div class="flex items-center gap-1">
+          <!-- Botón Toggle Modo Claro / Oscuro -->
+          <button id="theme-toggle-btn" onclick="toggleTheme()" class="h-7 w-7 rounded-md border border-zinc-800 hover:bg-zinc-800/80 text-zinc-400 hover:text-zinc-100 flex items-center justify-center transition" title="Cambiar Tema (Claro / Oscuro)">
+            <i id="theme-icon" data-lucide="sun" class="w-3.5 h-3.5"></i>
+          </button>
+          
+          <!-- Botón Configuración Rápida API -->
+          <button onclick="openSettingsModal()" class="h-7 w-7 rounded-md border border-zinc-800 hover:bg-zinc-800/80 text-zinc-400 hover:text-zinc-100 flex items-center justify-center transition" title="Ajustes de API">
+            <i data-lucide="settings" class="w-3.5 h-3.5"></i>
+          </button>
+        </div>
       </div>
 
       <!-- Barra de Estado de APIs -->

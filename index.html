@@ -87,8 +87,13 @@
         <a href="#codigo" class="hover:text-white transition-colors">Crear por Código</a>
       </nav>
 
-      <!-- Action Button -->
+      <!-- Action Buttons -->
       <div class="flex items-center gap-3">
+        <!-- Toggle Light / Dark -->
+        <button id="theme-toggle-btn-landing" onclick="toggleLandingTheme()" class="p-2 rounded-lg bg-surface-muted border border-surface-border hover:bg-surface-card text-slate-300 hover:text-white transition-all shadow-sm" title="Cambiar Tema (Claro / Oscuro)">
+          <i id="theme-landing-icon" data-lucide="sun" class="w-4 h-4"></i>
+        </button>
+
         <a href="https://github.com/bemtorres/mbot" target="_blank" rel="noopener noreferrer" 
            class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-surface-muted border border-surface-border hover:border-brand-500/50 hover:bg-surface-card text-sm font-semibold text-slate-200 transition-all shadow-sm">
           <i data-lucide="github" class="w-4 h-4"></i>
@@ -832,6 +837,33 @@ const bot = BotService.createBot({
 
       lucide.createIcons();
     }
+
+    // Lógica Light / Dark Mode para la Landing Page
+    function initLandingTheme() {
+      const saved = localStorage.getItem('mbot_theme') || 'dark';
+      applyLandingTheme(saved);
+    }
+
+    function applyLandingTheme(theme) {
+      const html = document.documentElement;
+      const icon = document.getElementById('theme-landing-icon');
+      if (theme === 'light') {
+        html.classList.remove('dark');
+        if (icon) icon.setAttribute('data-lucide', 'moon');
+      } else {
+        html.classList.add('dark');
+        if (icon) icon.setAttribute('data-lucide', 'sun');
+      }
+      localStorage.setItem('mbot_theme', theme);
+      if (window.lucide) lucide.createIcons();
+    }
+
+    function toggleLandingTheme() {
+      const isDark = document.documentElement.classList.contains('dark');
+      applyLandingTheme(isDark ? 'light' : 'dark');
+    }
+
+    initLandingTheme();
   </script>
 </body>
 </html>

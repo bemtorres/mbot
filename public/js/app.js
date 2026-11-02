@@ -16,10 +16,40 @@ const state = {
 
 // Inicialización al cargar la página
 document.addEventListener('DOMContentLoaded', async () => {
+  initTheme();
   if (window.lucide) lucide.createIcons();
   await loadSettingsStatus();
   await loadBots();
 });
+
+/* ========================================================
+   MODO CLARO / OSCURO (THEME SWITCHER)
+======================================================== */
+function initTheme() {
+  const savedTheme = localStorage.getItem('mbot_theme') || 'dark';
+  applyTheme(savedTheme);
+}
+
+function applyTheme(theme) {
+  const html = document.documentElement;
+  const icon = document.getElementById('theme-icon');
+  
+  if (theme === 'light') {
+    html.classList.remove('dark');
+    if (icon) icon.setAttribute('data-lucide', 'moon');
+  } else {
+    html.classList.add('dark');
+    if (icon) icon.setAttribute('data-lucide', 'sun');
+  }
+  
+  localStorage.setItem('mbot_theme', theme);
+  if (window.lucide) lucide.createIcons();
+}
+
+function toggleTheme() {
+  const isDark = document.documentElement.classList.contains('dark');
+  applyTheme(isDark ? 'light' : 'dark');
+}
 
 /* ========================================================
    CARGA DE CONFIGURACIÓN Y ESTADO DE APIS
